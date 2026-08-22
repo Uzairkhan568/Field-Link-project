@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import SearchBar from "./components/SearchBar";
 import Services from "./components/Services";
 
 function App() {
@@ -10,9 +9,7 @@ function App() {
   return (
     <div>
       <Navbar />
-      <Hero />
-
-      <SearchBar
+      <Hero
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />

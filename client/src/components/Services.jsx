@@ -1,24 +1,10 @@
 import { useState } from "react";
 import "./Services.css";
 import ServiceCard from "./ServiceCard";
+import services from "../data/services";
 
 function Services({ searchTerm }) {
     const [selectedService, setSelectedService] = useState("");
-
-    const services = [
-        {
-            name: "Plumbing",
-            description: "Find reliable plumbing professionals.",
-        },
-        {
-            name: "Electrical",
-            description: "Find trusted electrical professionals.",
-        },
-        {
-            name: "Cleaning",
-            description: "Find professional cleaning services.",
-        },
-    ];
 
     const filteredServices = services.filter((service) =>
         service.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -32,7 +18,7 @@ function Services({ searchTerm }) {
                 {filteredServices.length > 0 ? (
                     filteredServices.map((service) => (
                         <ServiceCard
-                            key={service.name}
+                            key={service.id}
                             name={service.name}
                             description={service.description}
                             onSelect={() => setSelectedService(service.name)}
