@@ -17,3 +17,11 @@
 .service-card:hover {
     transform: translateY(-5px);
 }
+
+.service-card button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}

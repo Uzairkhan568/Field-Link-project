@@ -13,3 +13,9 @@ section h2 {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
+
+.selected-service {
+    margin-top: 30px;
+    font-size: 18px;
+    font-weight: bold;
+}
