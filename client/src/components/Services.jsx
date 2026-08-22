@@ -2,32 +2,46 @@ import { useState } from "react";
 import "./Services.css";
 import ServiceCard from "./ServiceCard";
 
-function Services() {
+function Services({ searchTerm }) {
     const [selectedService, setSelectedService] = useState("");
+
+    const services = [
+        {
+            name: "Plumbing",
+            description: "Find reliable plumbing professionals.",
+        },
+        {
+            name: "Electrical",
+            description: "Find trusted electrical professionals.",
+        },
+        {
+            name: "Cleaning",
+            description: "Find professional cleaning services.",
+        },
+    ];
+
+    const filteredServices = services.filter((service) =>
+        service.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <section>
             <h2>Popular Services</h2>
 
             <div className="services-grid">
-                <ServiceCard
-                    name="Plumbing"
-                    description="Find reliable plumbing professionals."
-                    onSelect={() => setSelectedService("Plumbing")}
-                />
-
-                <ServiceCard
-                    name="Electrical"
-                    description="Find trusted electrical professionals."
-                    onSelect={() => setSelectedService("Electrical")}
-                />
-
-                <ServiceCard
-                    name="Cleaning"
-                    description="Find professional cleaning services."
-                    onSelect={() => setSelectedService("Cleaning")}
-                />
+                {filteredServices.length > 0 ? (
+                    filteredServices.map((service) => (
+                        <ServiceCard
+                            key={service.name}
+                            name={service.name}
+                            description={service.description}
+                            onSelect={() => setSelectedService(service.name)}
+                        />
+                    ))
+                ) : (
+                    <p className="no-services">No services found.</p>
+                )}
             </div>
-
             {selectedService && (
                 <p className="selected-service">
                     You selected: {selectedService}
