@@ -1,23 +1,11 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    axios.get("http://localhost:5000/")
-      .then((response) => {
-        setMessage(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
-
   return (
     <div>
-      <h1>FIELDLINK</h1>
-      <p>{message}</p>
+      <Navbar />
+      <Hero />
     </div>
   );
 }

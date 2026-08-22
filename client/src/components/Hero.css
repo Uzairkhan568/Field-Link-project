@@ -1,0 +1,23 @@
+section {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: #f5f7fa;
+}
+
+section h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+section p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+section button {
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+}
