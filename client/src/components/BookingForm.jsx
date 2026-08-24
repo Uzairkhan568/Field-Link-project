@@ -19,6 +19,21 @@ function BookingForm({ service, onDone }) {
             return;
         }
 
+        const bookingDateTime = new Date(`${date}T${time}`);
+        const minimumBookingTime = new Date(
+            Date.now() + 60 * 60 * 1000
+        );
+
+        if (isNaN(bookingDateTime.getTime())) {
+            setError("Invalid booking date or time.");
+            return;
+        }
+
+        if (bookingDateTime < minimumBookingTime) {
+            setError("Bookings must be made at least 1 hour in advance.");
+            return;
+        }
+
         setSubmitting(true);
         setError("");
 
@@ -91,6 +106,7 @@ function BookingForm({ service, onDone }) {
                 Preferred Date
                 <input
                     type="date"
+                    min={new Date().toISOString().split("T")[0]}
                     value={date}
                     onChange={(event) => setDate(event.target.value)}
                 />
