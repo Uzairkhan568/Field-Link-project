@@ -13,6 +13,10 @@ function Services({ searchTerm }) {
         service.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const selectedServiceMatchesSearch =
+        selectedService &&
+        selectedService.name.toLowerCase().includes(searchTerm.toLowerCase());
+
     return (
         <section>
             <h2>Popular Services</h2>
@@ -34,7 +38,7 @@ function Services({ searchTerm }) {
                     <p className="no-services">No services found.</p>
                 )}
             </div>
-            {selectedService && (
+            {selectedServiceMatchesSearch && (
                 <ServiceDetails
                     service={selectedService}
                     onBook={() => setBookingStarted(true)}
@@ -42,7 +46,13 @@ function Services({ searchTerm }) {
             )}
 
             {bookingStarted && (
-                <BookingForm service={selectedService} />
+                <BookingForm
+                    service={selectedService}
+                    onDone={() => {
+                        setBookingStarted(false);
+                        setSelectedService("");
+                    }}
+                />
             )}
         </section>
     );
