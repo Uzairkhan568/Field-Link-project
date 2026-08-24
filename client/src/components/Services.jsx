@@ -3,6 +3,7 @@ import "./Services.css";
 import ServiceCard from "./ServiceCard";
 import services from "../data/services";
 import ServiceDetails from "./ServiceDetails";
+import BookingForm from "./BookingForm";
 
 function Services({ searchTerm }) {
     const [selectedService, setSelectedService] = useState("");
@@ -41,9 +42,7 @@ function Services({ searchTerm }) {
             )}
 
             {bookingStarted && (
-                <p className="booking-message">
-                    Booking process started for {selectedService.name}.
-                </p>
+                <BookingForm service={selectedService} />
             )}
         </section>
     );
