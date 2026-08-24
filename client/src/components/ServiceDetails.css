@@ -1,0 +1,23 @@
+.service-details {
+    margin-top: 40px;
+    padding: 30px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.service-details h2 {
+    margin-bottom: 15px;
+}
+
+.service-details p {
+    margin-bottom: 20px;
+}
+
+.service-details button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
