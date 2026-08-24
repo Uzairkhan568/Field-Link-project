@@ -3,7 +3,7 @@ import "./Navbar.css";
 function Navbar() {
     return (
         <nav>
-            <h2>FIELDLINK</h2>
+            <h2>WEFiX</h2>
 
             <div>
                 <a href="/">Home</a>
