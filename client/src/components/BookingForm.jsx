@@ -57,9 +57,16 @@ function BookingForm({ service }) {
             </button>
 
             {submitted && (
-                <p>
-                    Booking details submitted for {service.name}.
-                </p>
+                <div className="booking-confirmation">
+                    <h3>Booking Confirmed</h3>
+
+                    <p>Service: {service.name}</p>
+                    <p>Name: {name}</p>
+                    <p>Date: {date}</p>
+                    <p>Time: {time}</p>
+
+                    <p>Your booking request has been submitted.</p>
+                </div>
             )}
         </section>
     );
