@@ -1,37 +1,67 @@
 import { useState } from "react";
+import { useAuth } from "../auth/useAuth";
 import "./BookingForm.css";
 
 function BookingForm({ service, onDone }) {
-    const [name, setName] = useState("");
+    const { user } = useAuth();
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [error, setError] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
+    if (!user) {
+        return (
+            <section className="booking-form">
+                <div className="booking-confirmation">
+                    <h3>Authentication Required</h3>
+                    <p>Please log in or register to book a service.</p>
+                    <button onClick={onDone}>Close</button>
+                </div>
+            </section>
+        );
+    }
+
     const handleSubmit = async () => {
         if (submitting || submitted) {
             return;
         }
 
-        if (!name || !date || !time) {
+        if (!date || !time) {
             setError("Please fill in all fields.");
             return;
         }
 
         const bookingDateTime = new Date(`${date}T${time}`);
-        const minimumBookingTime = new Date(
-            Date.now() + 60 * 60 * 1000
-        );
 
         if (isNaN(bookingDateTime.getTime())) {
             setError("Invalid booking date or time.");
             return;
         }
 
-        if (bookingDateTime < minimumBookingTime) {
-            setError("Bookings must be made at least 1 hour in advance.");
+        const now = new Date();
+        if (bookingDateTime.getTime() < now.getTime()) {
+            setError("Appointments cannot be in the past.");
             return;
+        }
+
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        const nowLocalStr = formatter.format(now);
+        const scheduledLocalStr = formatter.format(bookingDateTime);
+
+        if (nowLocalStr === scheduledLocalStr) {
+            const oneHourFromNow = now.getTime() + 60 * 60 * 1000;
+            if (bookingDateTime.getTime() < oneHourFromNow) {
+                setError("Same-day appointments require at least 1 hour of advance notice.");
+                return;
+            }
         }
 
         setSubmitting(true);
@@ -45,10 +75,9 @@ function BookingForm({ service, onDone }) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    name,
-                    service: service.name,
-                    date,
-                    time,
+                    serviceId: service.id,
+                    scheduledAt: bookingDateTime.toISOString(),
+                    timezone: timezone
                 }),
             });
 
@@ -73,17 +102,11 @@ function BookingForm({ service, onDone }) {
             <section className="booking-form">
                 <div className="booking-confirmation">
                     <h3>Booking Confirmed</h3>
-
                     <p>Service: {service.name}</p>
-                    <p>Name: {name}</p>
                     <p>Date: {date}</p>
                     <p>Time: {time}</p>
-
-                    <p>Your booking request has been submitted.</p>
-
-                    <button onClick={onDone}>
-                        Done
-                    </button>
+                    <p>Your booking request has been submitted successfully.</p>
+                    <button onClick={onDone}>Done</button>
                 </div>
             </section>
         );
@@ -92,16 +115,6 @@ function BookingForm({ service, onDone }) {
     return (
         <section className="booking-form">
             <h2>Book {service.name}</h2>
-
-            <label>
-                Your Name
-                <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                />
-            </label>
 
             <label>
                 Preferred Date
