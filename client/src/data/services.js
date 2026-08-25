@@ -1,19 +1,11 @@
-const services = [
-    {
-        id: 1,
-        name: "Plumbing",
-        description: "Find reliable plumbing professionals.",
-    },
-    {
-        id: 2,
-        name: "Electrical",
-        description: "Find trusted electrical professionals.",
-    },
-    {
-        id: 3,
-        name: "Cleaning",
-        description: "Find professional cleaning services.",
-    },
-];
+export async function getServices() {
+    const response = await fetch("/api/services", {
+        credentials: "include",
+    });
 
-export default services;
+    if (!response.ok) {
+        throw new Error("Unable to load services.");
+    }
+
+    return response.json();
+}

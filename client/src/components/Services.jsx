@@ -1,13 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Services.css";
 import ServiceCard from "./ServiceCard";
-import services from "../data/services";
+import { getServices } from "../data/services";
 import ServiceDetails from "./ServiceDetails";
 import BookingForm from "./BookingForm";
 
 function Services({ searchTerm }) {
-    const [selectedService, setSelectedService] = useState("");
+    const [services, setServices] = useState([]);
+    const [selectedService, setSelectedService] = useState(null);
     const [bookingStarted, setBookingStarted] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
+
+    useEffect(() => {
+        async function loadServices() {
+            try {
+                const data = await getServices();
+                setServices(data);
+            } catch (error) {
+                setLoadError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadServices();
+    }, []);
 
     const filteredServices = services.filter((service) =>
         service.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -22,7 +40,11 @@ function Services({ searchTerm }) {
             <h2>Popular Services</h2>
 
             <div className="services-grid">
-                {filteredServices.length > 0 ? (
+                {loading ? (
+                    <p className="no-services">Loading services...</p>
+                ) : loadError ? (
+                    <p className="no-services">{loadError}</p>
+                ) : filteredServices.length > 0 ? (
                     filteredServices.map((service) => (
                         <ServiceCard
                             key={service.id}
@@ -48,9 +70,9 @@ function Services({ searchTerm }) {
             {bookingStarted && (
                 <BookingForm
                     service={selectedService}
-                    onDone={() => {
-                        setBookingStarted(false);
-                        setSelectedService("");
+                        onDone={() => {
+                            setBookingStarted(false);
+                        setSelectedService(null);
                     }}
                 />
             )}
