@@ -36,7 +36,7 @@ function Services({ searchTerm }) {
         selectedService.name.toLowerCase().includes(searchTerm.toLowerCase());
 
     return (
-        <section>
+        <section id="services">
             <h2>Popular Services</h2>
 
             <div className="services-grid">

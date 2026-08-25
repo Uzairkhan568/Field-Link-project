@@ -2,8 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const cookieParser = require("cookie-parser");
 const bookingRoutes = require("./routes/bookingRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
+const authRoutes = require("./routes/authRoutes");
 const { env } = require("./config/env");
 const connectDatabase = require("./config/db");
 const notFound = require("./middleware/notFound");
@@ -13,6 +15,7 @@ const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
 
 app.use(
     cors({
@@ -36,6 +39,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/services", serviceRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use(notFound);
 app.use(errorHandler);

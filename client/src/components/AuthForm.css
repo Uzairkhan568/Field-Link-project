@@ -1,0 +1,32 @@
+.auth-page {
+    display: grid;
+    min-height: calc(100vh - 70px);
+    place-items: center;
+    padding: 40px;
+}
+
+.auth-form {
+    display: grid;
+    width: min(100%, 420px);
+    gap: 16px;
+}
+
+.auth-form h1,
+.auth-form p {
+    margin: 0;
+}
+
+.auth-form label {
+    display: grid;
+    gap: 6px;
+    text-align: left;
+}
+
+.auth-form input,
+.auth-form button {
+    padding: 10px;
+}
+
+.auth-error {
+    color: #b42318;
+}

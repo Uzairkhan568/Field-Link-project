@@ -5,8 +5,9 @@ nav {
     padding: 15px 40px;
 }
 
-nav div {
+.nav-links {
     display: flex;
+    align-items: center;
     gap: 20px;
 }
 
@@ -16,4 +17,8 @@ nav h2 {
 
 nav a {
     text-decoration: none;
+}
+
+.nav-user {
+    font-size: 14px;
 }
