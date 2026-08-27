@@ -1,9 +1,8 @@
 const z = require("zod");
-const mongoose = require("mongoose");
 const bookingService = require("../services/bookingService");
 
 const createBookingSchema = z.object({
-    serviceId: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+    serviceId: z.string().regex(/^[0-9a-fA-F]{24}$/, {
         message: "Invalid service ID format",
     }),
     scheduledAt: z.string().datetime({ offset: true }), // validates ISO 8601
@@ -19,9 +18,9 @@ const createBookingSchema = z.object({
 
 async function createBooking(req, res) {
     const parseResult = createBookingSchema.safeParse(req.body);
-    
+
     if (!parseResult.success) {
-        const error = new Error(parseResult.error.errors[0].message);
+        const error = new Error(parseResult.error.issues[0].message);
         error.statusCode = 400;
         throw error;
     }
