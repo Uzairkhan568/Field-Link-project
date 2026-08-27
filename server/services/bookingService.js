@@ -57,21 +57,31 @@ async function getAvailableBookings(providerId) {
         service: { $in: profile.offeredServices },
         scheduledAt: { $gte: new Date() }
     })
-    .populate("service", "name")
-    .populate("customer", "name")
-    .sort({ scheduledAt: 1 });
+        .populate("service", "name")
+        .populate("customer", "name")
+        .sort({ scheduledAt: 1 });
 }
 
 async function acceptBooking(bookingId, providerId) {
-    const booking = await Booking.findById(bookingId);
-    if (!booking || booking.status !== "pending") {
+    const booking = await Booking.findOne({
+        _id: bookingId,
+        status: "pending"
+    });
+
+    if (!booking) {
         const err = new Error("Booking not available.");
         err.statusCode = 400;
         throw err;
     }
 
     const profile = await ProviderProfile.findOne({ user: providerId });
-    if (!profile || !profile.offeredServices.includes(booking.service.toString())) {
+
+    if (
+        !profile ||
+        !profile.offeredServices.some(
+            (serviceId) => serviceId.toString() === booking.service.toString()
+        )
+    ) {
         const err = new Error("You are not authorized to provide this service.");
         err.statusCode = 403;
         throw err;
@@ -82,16 +92,38 @@ async function acceptBooking(bookingId, providerId) {
         status: "confirmed",
         scheduledAt: booking.scheduledAt
     });
+
     if (conflict) {
-        const err = new Error("You already have a confirmed booking at this exact time.");
+        const err = new Error(
+            "You already have a confirmed booking at this exact time."
+        );
         err.statusCode = 409;
         throw err;
     }
 
-    booking.provider = providerId;
-    booking.status = "confirmed";
-    await booking.save();
-    return booking;
+    const acceptedBooking = await Booking.findOneAndUpdate(
+        {
+            _id: bookingId,
+            status: "pending"
+        },
+        {
+            $set: {
+                provider: providerId,
+                status: "confirmed"
+            }
+        },
+        {
+            new: true
+        }
+    );
+
+    if (!acceptedBooking) {
+        const err = new Error("Booking was already accepted by another provider.");
+        err.statusCode = 409;
+        throw err;
+    }
+
+    return acceptedBooking;
 }
 
 async function completeBooking(bookingId, providerId) {
@@ -120,6 +152,13 @@ async function cancelBooking(bookingId, userId, role) {
             err.statusCode = 403;
             throw err;
         }
+
+        if (!["pending", "confirmed"].includes(booking.status)) {
+            const err = new Error("This booking cannot be cancelled.");
+            err.statusCode = 400;
+            throw err;
+        }
+
         booking.status = "cancelled";
     } else if (role === "provider") {
         if (booking.provider?.toString() !== userId) {
@@ -127,6 +166,13 @@ async function cancelBooking(bookingId, userId, role) {
             err.statusCode = 403;
             throw err;
         }
+
+        if (booking.status !== "confirmed") {
+            const err = new Error("Only confirmed bookings can be cancelled by a provider.");
+            err.statusCode = 400;
+            throw err;
+        }
+
         // Provider drops the job, returns to marketplace
         booking.status = "pending";
         booking.provider = null;
