@@ -1,0 +1,27 @@
+.admin-dashboard {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.admin-list {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    margin-bottom: 2rem;
+}
+
+.admin-card {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.admin-card p {
+    margin: 0.5rem 0;
+}
+
+.admin-card select {
+    padding: 0.25rem;
+}

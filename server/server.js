@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const bookingRoutes = require("./routes/bookingRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 const { env } = require("./config/env");
 const connectDatabase = require("./config/db");
 const notFound = require("./middleware/notFound");
@@ -41,6 +42,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/services", serviceRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/users", userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

@@ -47,4 +47,65 @@ async function createBooking(req, res) {
     });
 }
 
-module.exports = { createBooking };
+async function getBookings(req, res) {
+    const { role, id } = req.user;
+    let bookings;
+
+    if (role === 'admin') {
+        bookings = await bookingService.getAllBookings();
+    } else if (role === 'provider') {
+        bookings = await bookingService.getBookingsForProvider(id);
+    } else {
+        bookings = await bookingService.getBookingsForCustomer(id);
+    }
+
+    res.status(200).json(
+        bookings.map((booking) => ({
+            id: booking._id.toString(),
+            service: booking.service,
+            scheduledAt: booking.scheduledAt,
+            timezone: booking.timezone,
+            status: booking.status,
+            customer: booking.customer, // Only populated for provider/admin
+            provider: booking.provider, // Only populated for admin
+        }))
+    );
+}
+
+async function getAvailableBookings(req, res) {
+    const bookings = await bookingService.getAvailableBookings(req.user.id);
+    res.status(200).json(
+        bookings.map((booking) => ({
+            id: booking._id.toString(),
+            service: booking.service,
+            scheduledAt: booking.scheduledAt,
+            timezone: booking.timezone,
+            status: booking.status,
+            customer: booking.customer,
+        }))
+    );
+}
+
+async function acceptBooking(req, res) {
+    const booking = await bookingService.acceptBooking(req.params.id, req.user.id);
+    res.status(200).json({ message: "Booking accepted", booking });
+}
+
+async function completeBooking(req, res) {
+    const booking = await bookingService.completeBooking(req.params.id, req.user.id);
+    res.status(200).json({ message: "Booking completed", booking });
+}
+
+async function cancelBooking(req, res) {
+    const booking = await bookingService.cancelBooking(req.params.id, req.user.id, req.user.role);
+    res.status(200).json({ message: "Booking cancelled", booking });
+}
+
+module.exports = {
+    createBooking,
+    getBookings,
+    getAvailableBookings,
+    acceptBooking,
+    completeBooking,
+    cancelBooking
+};

@@ -1,0 +1,35 @@
+.my-bookings {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.bookings-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.booking-card {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.booking-card h3 {
+    margin-top: 0;
+}
+
+.status-badge {
+    text-transform: capitalize;
+    font-weight: bold;
+}
+
+.status-pending { border-left: 4px solid orange; }
+.status-confirmed { border-left: 4px solid blue; }
+.status-completed { border-left: 4px solid green; }
+.status-cancelled { border-left: 4px solid red; }
+
+.error {
+    color: red;
+}

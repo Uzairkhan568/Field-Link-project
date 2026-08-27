@@ -1,0 +1,38 @@
+.provider-dashboard {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.jobs-list {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.job-card {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fefefe;
+}
+
+.job-card h4 {
+    margin-top: 0;
+}
+
+.available-job {
+    border-left: 4px solid #4caf50;
+}
+
+.job-card button {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}

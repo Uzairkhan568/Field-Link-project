@@ -20,6 +20,9 @@ function Navbar() {
                 <a href="/#services">Services</a>
                 {!loading && (user ? (
                     <>
+                        {user.role === "customer" && <Link to="/my-bookings">My Bookings</Link>}
+                        {user.role === "provider" && <Link to="/dashboard">Dashboard</Link>}
+                        {user.role === "admin" && <Link to="/admin">Admin</Link>}
                         <span className="nav-user">Hi, {user.name}</span>
                         <button type="button" onClick={handleLogout}>Log out</button>
                     </>
