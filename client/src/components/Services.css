@@ -31,3 +31,37 @@ section h2 {
     font-size: 18px;
     font-weight: bold;
 }
+
+.service-filters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.service-filters label {
+    font-weight: bold;
+}
+
+.service-filters select {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.service-filters button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .service-filters {
+        flex-direction: column;
+    }
+}

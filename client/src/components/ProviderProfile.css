@@ -1,0 +1,155 @@
+.provider-profile {
+    min-height: 100vh;
+    padding: 50px 20px;
+    background-color: #f5f7fa;
+    box-sizing: border-box;
+}
+
+.provider-profile-card {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 40px;
+    box-sizing: border-box;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+}
+
+.provider-profile-card h1 {
+    margin: 0 0 35px;
+    text-align: center;
+}
+
+/* Basic account information */
+
+.provider-profile-info {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.provider-profile-info p {
+    margin: 8px 0;
+}
+
+/* Statistics */
+
+.provider-profile-statistics {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0 40px;
+}
+
+.provider-profile-statistics div {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.provider-profile-statistics strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 26px;
+}
+
+.provider-profile-statistics span {
+    display: block;
+}
+
+/* Bio */
+
+.provider-profile-card>label {
+    display: block;
+    margin-bottom: 35px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.provider-profile-card textarea {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font: inherit;
+    resize: vertical;
+}
+
+/* Services */
+
+.provider-services {
+    margin-top: 20px;
+}
+
+.provider-services h2 {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/*
+ * Each service is now one clean horizontal row:
+ *
+ * [ checkbox ]  Carpentry
+ * [ checkbox ]  Cleaning
+ * [ checkbox ]  Electrical
+ */
+
+.provider-services label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 12px 0;
+    text-align: left;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.provider-services input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0 12px 0 0;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Save button */
+
+.provider-profile-card>button {
+    display: block;
+    margin: 30px auto 0;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.provider-profile-card>button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Messages */
+
+.provider-profile-card>p {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Responsive */
+
+@media (max-width: 700px) {
+    .provider-profile-card {
+        padding: 25px;
+    }
+
+    .provider-profile-statistics {
+        flex-direction: column;
+    }
+}

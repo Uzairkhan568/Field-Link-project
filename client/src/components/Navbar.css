@@ -22,3 +22,20 @@ nav a {
 .nav-user {
     font-size: 14px;
 }
+
+.nav-notifications {
+    position: relative;
+}
+
+.notification-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}

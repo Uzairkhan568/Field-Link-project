@@ -1,21 +1,26 @@
 const Booking = require("../models/Booking");
 const Service = require("../models/Service");
 const ProviderProfile = require("../models/ProviderProfile");
+const notificationService = require("./notificationService");
 const { validateAppointmentTime } = require("../utils/appointmentValidation");
 
-async function createBooking({ customerId, serviceId, scheduledAt, timezone, address }) {
-    // Check if service exists and is active
+async function createBooking({
+    customerId,
+    serviceId,
+    scheduledAt,
+    timezone,
+    address
+}) {
     const service = await Service.findById(serviceId);
+
     if (!service || !service.isActive) {
         const error = new Error("Service not found or inactive.");
         error.statusCode = 404;
         throw error;
     }
 
-    // Validate appointment time
     validateAppointmentTime(scheduledAt, timezone);
 
-    // Create booking
     const booking = new Booking({
         customer: customerId,
         service: serviceId,
@@ -26,6 +31,7 @@ async function createBooking({ customerId, serviceId, scheduledAt, timezone, add
     });
 
     await booking.save();
+
     return booking;
 }
 
@@ -37,7 +43,7 @@ async function getBookingsForCustomer(customerId) {
 
 async function getBookingsForProvider(providerId) {
     return Booking.find({ provider: providerId })
-        .populate("service", "name customer") // Need customer details maybe?
+        .populate("service", "name customer")
         .sort({ scheduledAt: 1 });
 }
 
@@ -51,6 +57,7 @@ async function getAllBookings() {
 
 async function getAvailableBookings(providerId) {
     const profile = await ProviderProfile.findOne({ user: providerId });
+
     if (!profile) return [];
 
     return Booking.find({
@@ -75,15 +82,20 @@ async function acceptBooking(bookingId, providerId) {
         throw err;
     }
 
-    const profile = await ProviderProfile.findOne({ user: providerId });
+    const profile = await ProviderProfile.findOne({
+        user: providerId
+    });
 
     if (
         !profile ||
         !profile.offeredServices.some(
-            (serviceId) => serviceId.toString() === booking.service.toString()
+            (serviceId) =>
+                serviceId.toString() === booking.service.toString()
         )
     ) {
-        const err = new Error("You are not authorized to provide this service.");
+        const err = new Error(
+            "You are not authorized to provide this service."
+        );
         err.statusCode = 403;
         throw err;
     }
@@ -119,28 +131,55 @@ async function acceptBooking(bookingId, providerId) {
     );
 
     if (!acceptedBooking) {
-        const err = new Error("Booking was already accepted by another provider.");
+        const err = new Error(
+            "Booking was already accepted by another provider."
+        );
         err.statusCode = 409;
         throw err;
     }
+
+    await notificationService.createNotification({
+        userId: acceptedBooking.customer,
+        type: "booking_accepted",
+        message: "Your booking has been accepted by a provider.",
+        bookingId: acceptedBooking._id
+    });
 
     return acceptedBooking;
 }
 
 async function completeBooking(bookingId, providerId) {
     const booking = await Booking.findById(bookingId);
-    if (!booking || booking.provider?.toString() !== providerId || booking.status !== "confirmed") {
-        const err = new Error("Invalid booking or not authorized.");
+
+    if (
+        !booking ||
+        booking.provider?.toString() !== providerId ||
+        booking.status !== "confirmed"
+    ) {
+        const err = new Error(
+            "Invalid booking or not authorized."
+        );
         err.statusCode = 400;
         throw err;
     }
+
     booking.status = "completed";
+
     await booking.save();
+
+    await notificationService.createNotification({
+        userId: booking.customer,
+        type: "booking_completed",
+        message: "Your booking has been completed.",
+        bookingId: booking._id
+    });
+
     return booking;
 }
 
 async function cancelBooking(bookingId, userId, role) {
     const booking = await Booking.findById(bookingId);
+
     if (!booking) {
         const err = new Error("Booking not found.");
         err.statusCode = 404;
@@ -155,13 +194,30 @@ async function cancelBooking(bookingId, userId, role) {
         }
 
         if (!["pending", "confirmed"].includes(booking.status)) {
-            const err = new Error("This booking cannot be cancelled.");
+            const err = new Error(
+                "This booking cannot be cancelled."
+            );
             err.statusCode = 400;
             throw err;
         }
 
         booking.status = "cancelled";
-    } else if (role === "provider") {
+
+        await booking.save();
+
+        if (booking.provider) {
+            await notificationService.createNotification({
+                userId: booking.provider,
+                type: "booking_cancelled",
+                message: "A customer cancelled their booking.",
+                bookingId: booking._id
+            });
+        }
+
+        return booking;
+    }
+
+    if (role === "provider") {
         if (booking.provider?.toString() !== userId) {
             const err = new Error("Not authorized.");
             err.statusCode = 403;
@@ -169,20 +225,57 @@ async function cancelBooking(bookingId, userId, role) {
         }
 
         if (booking.status !== "confirmed") {
-            const err = new Error("Only confirmed bookings can be cancelled by a provider.");
+            const err = new Error(
+                "Only confirmed bookings can be cancelled by a provider."
+            );
             err.statusCode = 400;
             throw err;
         }
 
-        // Provider drops the job, returns to marketplace
         booking.status = "pending";
         booking.provider = null;
-    } else if (role === "admin") {
-        booking.status = "cancelled";
+
+        await booking.save();
+
+        await notificationService.createNotification({
+            userId: booking.customer,
+            type: "booking_cancelled",
+            message: "Your provider cancelled the booking. It is available for another provider.",
+            bookingId: booking._id
+        });
+
+        return booking;
     }
 
-    await booking.save();
-    return booking;
+    if (role === "admin") {
+        booking.status = "cancelled";
+
+        await booking.save();
+
+        if (booking.customer) {
+            await notificationService.createNotification({
+                userId: booking.customer,
+                type: "booking_cancelled",
+                message: "Your booking was cancelled by an administrator.",
+                bookingId: booking._id
+            });
+        }
+
+        if (booking.provider) {
+            await notificationService.createNotification({
+                userId: booking.provider,
+                type: "booking_cancelled",
+                message: "A booking assigned to you was cancelled by an administrator.",
+                bookingId: booking._id
+            });
+        }
+
+        return booking;
+    }
+
+    const err = new Error("Invalid user role.");
+    err.statusCode = 400;
+    throw err;
 }
 
 module.exports = {

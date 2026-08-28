@@ -77,6 +77,7 @@ async function getBookings(req, res) {
             status: booking.status,
             customer: booking.customer, // Only populated for provider/admin
             provider: booking.provider, // Only populated for admin
+            paymentStatus: booking.paymentStatus,
         }))
     );
 }

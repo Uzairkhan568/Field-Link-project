@@ -25,11 +25,182 @@
     font-weight: bold;
 }
 
-.status-pending { border-left: 4px solid orange; }
-.status-confirmed { border-left: 4px solid blue; }
-.status-completed { border-left: 4px solid green; }
-.status-cancelled { border-left: 4px solid red; }
+.status-pending {
+    border-left: 4px solid orange;
+}
+
+.status-confirmed {
+    border-left: 4px solid blue;
+}
+
+.status-completed {
+    border-left: 4px solid green;
+}
+
+.status-cancelled {
+    border-left: 4px solid red;
+}
 
 .error {
     color: red;
+}
+
+.review-section {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #ddd;
+}
+
+.review-section h4 {
+    margin-bottom: 18px;
+    font-size: 20px;
+}
+
+.rating-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.rating-group>span {
+    font-weight: bold;
+}
+
+.star-rating {
+    display: flex;
+    gap: 4px;
+}
+
+.star {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.star:hover,
+.star.selected {
+    color: #f5b301;
+}
+
+.review-label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.review-label textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+}
+
+.review-label textarea:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.review-submit {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.review-submit:hover {
+    opacity: 0.85;
+}
+
+.review-submitted {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.review-check {
+    font-size: 24px;
+}
+
+.review-submitted p {
+    margin: 4px 0 0;
+    font-size: 14px;
+}
+
+.payment-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.payment-section h4 {
+    margin-bottom: 12px;
+}
+
+.payment-status {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.payment-pending {
+    color: #b7791f;
+}
+
+.payment-paid {
+    color: #22863a;
+}
+
+.payment-failed {
+    color: #c53030;
+}
+
+.payment-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.pay-button,
+.payment-fail-button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pay-button {
+    background-color: #22863a;
+    color: white;
+}
+
+.payment-fail-button {
+    background-color: #ddd;
+    color: #222;
+}
+
+.pay-button:disabled,
+.payment-fail-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.payment-success {
+    margin-top: 12px;
+    font-weight: bold;
 }

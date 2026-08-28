@@ -8,37 +8,50 @@ const bookingSchema = new mongoose.Schema(
             required: true,
             index: true,
         },
+
         provider: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             default: null,
             index: true,
         },
+
         service: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Service",
             required: true,
         },
+
         scheduledAt: {
             type: Date,
             required: true,
         },
+
         timezone: {
             type: String,
             required: true,
             trim: true,
         },
+
         address: {
             addressLine: { type: String },
             city: { type: String },
             state: { type: String },
-            postalCode: { type: String }
+            postalCode: { type: String },
         },
+
         status: {
             type: String,
             enum: ["pending", "confirmed", "cancelled", "completed"],
             default: "pending",
         },
+
+        paymentStatus: {
+            type: String,
+            enum: ["pending", "paid", "failed"],
+            default: "pending",
+        },
+
         notes: {
             type: String,
             trim: true,
