@@ -14,6 +14,12 @@ const createBookingSchema = z.object({
             return false;
         }
     }, { message: "Invalid IANA timezone" }),
+    address: z.object({
+        addressLine: z.string().min(1, "Address line is required"),
+        city: z.string().min(1, "City is required"),
+        state: z.string().min(1, "State is required"),
+        postalCode: z.string().min(1, "Postal code is required"),
+    }),
 });
 
 async function createBooking(req, res) {
@@ -25,14 +31,15 @@ async function createBooking(req, res) {
         throw error;
     }
 
-    const { serviceId, scheduledAt, timezone } = parseResult.data;
+    const { serviceId, scheduledAt, timezone, address } = parseResult.data;
     const customerId = req.user.id;
 
     const booking = await bookingService.createBooking({
         customerId,
         serviceId,
         scheduledAt,
-        timezone
+        timezone,
+        address
     });
 
     res.status(201).json({
@@ -42,6 +49,7 @@ async function createBooking(req, res) {
             serviceId: booking.service.toString(),
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
+            address: booking.address,
             status: booking.status
         }
     });
@@ -65,6 +73,7 @@ async function getBookings(req, res) {
             service: booking.service,
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
+            address: booking.address,
             status: booking.status,
             customer: booking.customer, // Only populated for provider/admin
             provider: booking.provider, // Only populated for admin
@@ -80,6 +89,7 @@ async function getAvailableBookings(req, res) {
             service: booking.service,
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
+            address: booking.address,
             status: booking.status,
             customer: booking.customer,
         }))

@@ -50,6 +50,7 @@ function Services({ searchTerm }) {
                             key={service.id}
                             name={service.name}
                             description={service.description}
+                            imageUrl={service.imageUrl}
                             onSelect={() => {
                                 setSelectedService(service);
                                 setBookingStarted(false);
@@ -60,6 +61,7 @@ function Services({ searchTerm }) {
                     <p className="no-services">No services found.</p>
                 )}
             </div>
+
             {selectedServiceMatchesSearch && (
                 <ServiceDetails
                     service={selectedService}
@@ -70,8 +72,8 @@ function Services({ searchTerm }) {
             {bookingStarted && (
                 <BookingForm
                     service={selectedService}
-                        onDone={() => {
-                            setBookingStarted(false);
+                    onDone={() => {
+                        setBookingStarted(false);
                         setSelectedService(null);
                     }}
                 />

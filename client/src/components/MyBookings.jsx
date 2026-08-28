@@ -52,6 +52,9 @@ function MyBookings() {
                             <h3>{booking.service?.name || "Service"}</h3>
                             <p><strong>Date:</strong> {new Date(booking.scheduledAt).toLocaleDateString()}</p>
                             <p><strong>Time:</strong> {new Date(booking.scheduledAt).toLocaleTimeString()}</p>
+                            {booking.address && (
+                                <p><strong>Location:</strong> {booking.address.addressLine}, {booking.address.city}, {booking.address.state} {booking.address.postalCode}</p>
+                            )}
                             <p><strong>Status:</strong> <span className="status-badge">{booking.status}</span></p>
                         </div>
                     ))}

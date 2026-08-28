@@ -28,6 +28,12 @@ const bookingSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        address: {
+            addressLine: { type: String },
+            city: { type: String },
+            state: { type: String },
+            postalCode: { type: String }
+        },
         status: {
             type: String,
             enum: ["pending", "confirmed", "cancelled", "completed"],

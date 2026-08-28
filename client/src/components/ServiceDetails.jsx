@@ -2,7 +2,15 @@ import "./ServiceDetails.css";
 
 function ServiceDetails({ service, onBook }) {
     return (
-        <section>
+        <section className="service-details">
+            {service.imageUrl && (
+                <img
+                    src={service.imageUrl}
+                    alt={`${service.name} service`}
+                    className="service-details-image"
+                />
+            )}
+
             <h2>{service.name}</h2>
 
             <p>{service.description}</p>

@@ -78,6 +78,9 @@ function ProviderDashboard() {
                             <h4>{job.service?.name}</h4>
                             <p><strong>Customer:</strong> {job.customer?.name}</p>
                             <p><strong>Time:</strong> {new Date(job.scheduledAt).toLocaleString()}</p>
+                            {job.address && (
+                                <p><strong>Location:</strong> {job.address.addressLine}, {job.address.city}, {job.address.state} {job.address.postalCode}</p>
+                            )}
                             <p><strong>Status:</strong> {job.status}</p>
                             {job.status === "confirmed" && (
                                 <>
@@ -98,6 +101,9 @@ function ProviderDashboard() {
                             <h4>{job.service?.name}</h4>
                             <p><strong>Customer:</strong> {job.customer?.name}</p>
                             <p><strong>Time:</strong> {new Date(job.scheduledAt).toLocaleString()}</p>
+                            {job.address && (
+                                <p><strong>Location:</strong> {job.address.addressLine}, {job.address.city}, {job.address.state} {job.address.postalCode}</p>
+                            )}
                             <button onClick={() => handleAction(job.id, "accept")}>Accept Job</button>
                         </div>
                     ))}

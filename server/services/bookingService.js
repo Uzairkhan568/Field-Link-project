@@ -3,7 +3,7 @@ const Service = require("../models/Service");
 const ProviderProfile = require("../models/ProviderProfile");
 const { validateAppointmentTime } = require("../utils/appointmentValidation");
 
-async function createBooking({ customerId, serviceId, scheduledAt, timezone }) {
+async function createBooking({ customerId, serviceId, scheduledAt, timezone, address }) {
     // Check if service exists and is active
     const service = await Service.findById(serviceId);
     if (!service || !service.isActive) {
@@ -21,6 +21,7 @@ async function createBooking({ customerId, serviceId, scheduledAt, timezone }) {
         service: serviceId,
         scheduledAt,
         timezone,
+        address,
         status: "pending"
     });
 

@@ -18,6 +18,21 @@ const services = [
         slug: "cleaning",
         description: "Find professional cleaning services.",
     },
+    {
+        name: "Carpentry",
+        slug: "carpentry",
+        description: "Find skilled carpenters for your woodwork.",
+    },
+    {
+        name: "Painting",
+        slug: "painting",
+        description: "Find professional painters for a fresh look.",
+    },
+    {
+        name: "Pest Control",
+        slug: "pest-control",
+        description: "Find experts to safely remove pests.",
+    },
 ];
 
 async function seedServices() {
