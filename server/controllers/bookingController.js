@@ -5,15 +5,25 @@ const createBookingSchema = z.object({
     serviceId: z.string().regex(/^[0-9a-fA-F]{24}$/, {
         message: "Invalid service ID format",
     }),
-    scheduledAt: z.string().datetime({ offset: true }), // validates ISO 8601
-    timezone: z.string().refine((val) => {
-        try {
-            Intl.DateTimeFormat(undefined, { timeZone: val });
-            return true;
-        } catch (e) {
-            return false;
+
+    scheduledAt: z.string().datetime({ offset: true }),
+
+    timezone: z.string().refine(
+        (val) => {
+            try {
+                Intl.DateTimeFormat(undefined, {
+                    timeZone: val,
+                });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        },
+        {
+            message: "Invalid IANA timezone",
         }
-    }, { message: "Invalid IANA timezone" }),
+    ),
+
     address: z.object({
         addressLine: z.string().min(1, "Address line is required"),
         city: z.string().min(1, "City is required"),
@@ -26,12 +36,21 @@ async function createBooking(req, res) {
     const parseResult = createBookingSchema.safeParse(req.body);
 
     if (!parseResult.success) {
-        const error = new Error(parseResult.error.issues[0].message);
+        const error = new Error(
+            parseResult.error.issues[0].message
+        );
+
         error.statusCode = 400;
         throw error;
     }
 
-    const { serviceId, scheduledAt, timezone, address } = parseResult.data;
+    const {
+        serviceId,
+        scheduledAt,
+        timezone,
+        address,
+    } = parseResult.data;
+
     const customerId = req.user.id;
 
     const booking = await bookingService.createBooking({
@@ -39,29 +58,33 @@ async function createBooking(req, res) {
         serviceId,
         scheduledAt,
         timezone,
-        address
+        address,
     });
 
     res.status(201).json({
         message: "Booking request received",
+
         booking: {
             id: booking._id.toString(),
             serviceId: booking.service.toString(),
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
             address: booking.address,
-            status: booking.status
-        }
+            status: booking.status,
+            paymentStatus: booking.paymentStatus,
+            createdAt: booking.createdAt,
+        },
     });
 }
 
 async function getBookings(req, res) {
     const { role, id } = req.user;
+
     let bookings;
 
-    if (role === 'admin') {
+    if (role === "admin") {
         bookings = await bookingService.getAllBookings();
-    } else if (role === 'provider') {
+    } else if (role === "provider") {
         bookings = await bookingService.getBookingsForProvider(id);
     } else {
         bookings = await bookingService.getBookingsForCustomer(id);
@@ -75,15 +98,20 @@ async function getBookings(req, res) {
             timezone: booking.timezone,
             address: booking.address,
             status: booking.status,
-            customer: booking.customer, // Only populated for provider/admin
-            provider: booking.provider, // Only populated for admin
+            customer: booking.customer,
+            provider: booking.provider,
             paymentStatus: booking.paymentStatus,
+
+            // Required by the customer's 15-minute cancellation window
+            createdAt: booking.createdAt,
         }))
     );
 }
 
 async function getAvailableBookings(req, res) {
-    const bookings = await bookingService.getAvailableBookings(req.user.id);
+    const bookings =
+        await bookingService.getAvailableBookings(req.user.id);
+
     res.status(200).json(
         bookings.map((booking) => ({
             id: booking._id.toString(),
@@ -93,23 +121,46 @@ async function getAvailableBookings(req, res) {
             address: booking.address,
             status: booking.status,
             customer: booking.customer,
+            createdAt: booking.createdAt,
         }))
     );
 }
 
 async function acceptBooking(req, res) {
-    const booking = await bookingService.acceptBooking(req.params.id, req.user.id);
-    res.status(200).json({ message: "Booking accepted", booking });
+    const booking = await bookingService.acceptBooking(
+        req.params.id,
+        req.user.id
+    );
+
+    res.status(200).json({
+        message: "Booking accepted",
+        booking,
+    });
 }
 
 async function completeBooking(req, res) {
-    const booking = await bookingService.completeBooking(req.params.id, req.user.id);
-    res.status(200).json({ message: "Booking completed", booking });
+    const booking = await bookingService.completeBooking(
+        req.params.id,
+        req.user.id
+    );
+
+    res.status(200).json({
+        message: "Booking completed",
+        booking,
+    });
 }
 
 async function cancelBooking(req, res) {
-    const booking = await bookingService.cancelBooking(req.params.id, req.user.id, req.user.role);
-    res.status(200).json({ message: "Booking cancelled", booking });
+    const booking = await bookingService.cancelBooking(
+        req.params.id,
+        req.user.id,
+        req.user.role
+    );
+
+    res.status(200).json({
+        message: "Booking cancelled",
+        booking,
+    });
 }
 
 module.exports = {
@@ -118,5 +169,5 @@ module.exports = {
     getAvailableBookings,
     acceptBooking,
     completeBooking,
-    cancelBooking
+    cancelBooking,
 };

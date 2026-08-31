@@ -6,11 +6,18 @@ const requireRole = require("../middleware/requireRole");
 const {
     getMyProviderProfile,
     updateMyProviderProfile,
-    getProviderProfiles
+    getProviderProfiles,
+    getProviderProfilesForAdmin,
+    updateProviderServicesByAdmin
 } = require("../controllers/providerProfileController");
 
 const router = express.Router();
 
+
+/*
+ * PROVIDER
+ * View own profile
+ */
 router.get(
     "/me",
     requireAuth,
@@ -18,6 +25,11 @@ router.get(
     getMyProviderProfile
 );
 
+
+/*
+ * PROVIDER
+ * Edit own profile
+ */
 router.patch(
     "/me",
     requireAuth,
@@ -25,11 +37,41 @@ router.patch(
     updateMyProviderProfile
 );
 
+
+/*
+ * ADMIN
+ * View all provider profiles
+ */
+router.get(
+    "/admin",
+    requireAuth,
+    requireRole("admin"),
+    getProviderProfilesForAdmin
+);
+
+
+/*
+ * ADMIN
+ * Edit services offered by a provider
+ */
+router.patch(
+    "/admin/:providerId",
+    requireAuth,
+    requireRole("admin"),
+    updateProviderServicesByAdmin
+);
+
+
+/*
+ * CUSTOMER
+ * View provider profiles
+ */
 router.get(
     "/",
     requireAuth,
     requireRole("customer"),
     getProviderProfiles
 );
+
 
 module.exports = router;

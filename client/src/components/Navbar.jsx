@@ -132,6 +132,13 @@ function Navbar() {
                                 >
                                     Hi, {user.name}
                                 </Link>
+                            ) : user.role === "customer" ? (
+                                <Link
+                                    to="/customer-profile"
+                                    className="nav-user"
+                                >
+                                    Hi, {user.name}
+                                </Link>
                             ) : (
                                 <span className="nav-user">
                                     Hi, {user.name}

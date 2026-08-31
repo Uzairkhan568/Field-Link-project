@@ -11,6 +11,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import ProviderProfile from "./components/ProviderProfile";
 import Providers from "./components/Providers";
 import Notifications from "./components/Notifications";
+import CustomerProfile from "./components/CustomerProfile";
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,6 +51,9 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
 
         <Route path="/notifications" element={<Notifications />} />
+
+        <Route path="/customer-profile" element={<CustomerProfile />} />
+
       </Routes>
     </div>
   );

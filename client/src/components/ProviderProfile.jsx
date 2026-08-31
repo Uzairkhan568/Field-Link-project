@@ -3,6 +3,7 @@ import "./ProviderProfile.css";
 
 function ProviderProfile() {
     const [profile, setProfile] = useState(null);
+    const [name, setName] = useState("");
     const [bio, setBio] = useState("");
     const [offeredServices, setOfferedServices] = useState([]);
     const [availableServices, setAvailableServices] = useState([]);
@@ -26,20 +27,25 @@ function ProviderProfile() {
 
                 if (!profileResponse.ok) {
                     throw new Error(
-                        profileData.message || "Unable to load provider profile."
+                        profileData.message ||
+                        "Unable to load provider profile."
                     );
                 }
 
                 if (!servicesResponse.ok) {
                     throw new Error(
-                        servicesData.message || "Unable to load services."
+                        servicesData.message ||
+                        "Unable to load services."
                     );
                 }
 
                 setProfile(profileData);
+                setName(profileData.user?.name || "");
                 setBio(profileData.bio || "");
                 setOfferedServices(
-                    profileData.offeredServices?.map((service) => service._id) || []
+                    profileData.offeredServices?.map(
+                        (service) => service._id
+                    ) || []
                 );
                 setAvailableServices(servicesData);
             } catch (error) {
@@ -73,6 +79,7 @@ function ProviderProfile() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    name,
                     bio,
                     offeredServices,
                 }),
@@ -82,11 +89,20 @@ function ProviderProfile() {
 
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Unable to update provider profile."
+                    data.message ||
+                    "Unable to update provider profile."
                 );
             }
 
             setProfile(data.profile);
+            setName(data.profile.user?.name || "");
+            setBio(data.profile.bio || "");
+            setOfferedServices(
+                data.profile.offeredServices?.map(
+                    (service) => service._id
+                ) || []
+            );
+
             setMessage("Profile updated successfully.");
         } catch (error) {
             setError(error.message);
@@ -117,10 +133,18 @@ function ProviderProfile() {
                 <h1>My Provider Profile</h1>
 
                 <div className="provider-profile-info">
-                    <p>
-                        <strong>Name:</strong>{" "}
-                        {profile.user?.name || "Not available"}
-                    </p>
+                    <label>
+                        Name
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(event) =>
+                                setName(event.target.value)
+                            }
+                            placeholder="Your name"
+                            maxLength={100}
+                        />
+                    </label>
 
                     <p>
                         <strong>Email:</strong>{" "}
@@ -149,7 +173,9 @@ function ProviderProfile() {
                     Bio
                     <textarea
                         value={bio}
-                        onChange={(event) => setBio(event.target.value)}
+                        onChange={(event) =>
+                            setBio(event.target.value)
+                        }
                         placeholder="Tell customers about your experience and services."
                         maxLength={1000}
                         rows={5}
@@ -178,9 +204,13 @@ function ProviderProfile() {
                 </div>
 
                 {error && <p>{error}</p>}
+
                 {message && <p>{message}</p>}
 
-                <button onClick={handleSave} disabled={saving}>
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                >
                     {saving ? "Saving..." : "Save Changes"}
                 </button>
             </div>

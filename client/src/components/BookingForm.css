@@ -53,3 +53,29 @@
 .booking-confirmation p {
     margin: 8px 0;
 }
+
+.booking-address-row {
+    display: flex;
+    gap: 10px;
+}
+
+.booking-address-row label {
+    flex: 1;
+}
+
+.selected-address {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.selected-address p {
+    margin: 4px 0;
+}
+
+@media (max-width: 700px) {
+    .booking-address-row {
+        flex-direction: column;
+    }
+}

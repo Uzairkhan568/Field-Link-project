@@ -4,26 +4,60 @@ import "./AdminDashboard.css";
 
 function AdminDashboard() {
     const { user } = useAuth();
+
     const [bookings, setBookings] = useState([]);
     const [users, setUsers] = useState([]);
+    const [providers, setProviders] = useState([]);
+    const [services, setServices] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [savingProvider, setSavingProvider] = useState(null);
+    const [providerMessage, setProviderMessage] = useState("");
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [bookRes, userRes] = await Promise.all([
-                    fetch("/api/bookings", { credentials: "include" }),
-                    fetch("/api/users", { credentials: "include" })
+                const [
+                    bookRes,
+                    userRes,
+                    providerRes,
+                    serviceRes
+                ] = await Promise.all([
+                    fetch("/api/bookings", {
+                        credentials: "include"
+                    }),
+
+                    fetch("/api/users", {
+                        credentials: "include"
+                    }),
+
+                    fetch("/api/provider-profile/admin", {
+                        credentials: "include"
+                    }),
+
+                    fetch("/api/services")
                 ]);
-                
-                if (!bookRes.ok || !userRes.ok) throw new Error("Failed to fetch admin data.");
-                
+
+                if (
+                    !bookRes.ok ||
+                    !userRes.ok ||
+                    !providerRes.ok ||
+                    !serviceRes.ok
+                ) {
+                    throw new Error("Failed to fetch admin data.");
+                }
+
                 const bookData = await bookRes.json();
                 const userData = await userRes.json();
-                
+                const providerData = await providerRes.json();
+                const serviceData = await serviceRes.json();
+
                 setBookings(bookData);
                 setUsers(userData);
+                setProviders(providerData);
+                setServices(serviceData);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -40,67 +74,404 @@ function AdminDashboard() {
         try {
             const res = await fetch(`/api/users/${userId}/role`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 credentials: "include",
-                body: JSON.stringify({ role: newRole })
+                body: JSON.stringify({
+                    role: newRole
+                })
             });
-            if (res.ok) {
-                setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
-                alert("Role updated successfully.");
-            } else {
-                alert("Failed to update role.");
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.message || "Failed to update role.");
+                return;
             }
+
+            setUsers((currentUsers) =>
+                currentUsers.map((u) =>
+                    u._id === userId
+                        ? { ...u, role: newRole }
+                        : u
+                )
+            );
+
+            alert("Role updated successfully.");
         } catch {
             alert("Error updating role.");
         }
     };
 
+    const handleProviderServiceChange = (providerId, serviceId) => {
+        setProviders((currentProviders) =>
+            currentProviders.map((provider) => {
+                if (provider._id !== providerId) {
+                    return provider;
+                }
+
+                const currentServices = provider.offeredServices || [];
+
+                const alreadyOffered = currentServices.some(
+                    (service) =>
+                        service._id === serviceId
+                );
+
+                let updatedServices;
+
+                if (alreadyOffered) {
+                    updatedServices = currentServices.filter(
+                        (service) =>
+                            service._id !== serviceId
+                    );
+                } else {
+                    const serviceToAdd = services.find(
+                        (service) =>
+                            (service._id || service.id) === serviceId
+                    );
+
+                    if (!serviceToAdd) {
+                        return provider;
+                    }
+
+                    updatedServices = [
+                        ...currentServices,
+                        {
+                            _id: serviceToAdd._id || serviceToAdd.id,
+                            name: serviceToAdd.name,
+                            slug: serviceToAdd.slug,
+                            description: serviceToAdd.description
+                        }
+                    ];
+                }
+
+                return {
+                    ...provider,
+                    offeredServices: updatedServices
+                };
+            })
+        );
+    };
+
+    const handleSaveProviderServices = async (providerId) => {
+        setSavingProvider(providerId);
+        setProviderMessage("");
+
+        try {
+            const provider = providers.find(
+                (item) => item._id === providerId
+            );
+
+            if (!provider) {
+                throw new Error("Provider not found.");
+            }
+
+            const offeredServices = (
+                provider.offeredServices || []
+            ).map((service) => service._id);
+
+            const response = await fetch(
+                `/api/provider-profile/admin/${providerId}`,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        offeredServices
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Unable to update provider services."
+                );
+            }
+
+            setProviders((currentProviders) =>
+                currentProviders.map((item) =>
+                    item._id === providerId
+                        ? data.profile
+                        : item
+                )
+            );
+
+            setProviderMessage(
+                "Provider services updated successfully."
+            );
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setSavingProvider(null);
+        }
+    };
+
     if (!user || user.role !== "admin") {
-        return <div className="admin-dashboard"><p>Access denied. Admins only.</p></div>;
+        return (
+            <div className="admin-dashboard">
+                <p>Access denied. Admins only.</p>
+            </div>
+        );
     }
 
-    if (loading) return <div className="admin-dashboard"><p>Loading dashboard...</p></div>;
-    if (error) return <div className="admin-dashboard"><p className="error">{error}</p></div>;
+    if (loading) {
+        return (
+            <div className="admin-dashboard">
+                <p>Loading dashboard...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="admin-dashboard">
+                <p className="error">{error}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-dashboard">
             <h2>Admin Dashboard</h2>
 
+            {/* BOOKINGS */}
+
             <section>
                 <h3>All Bookings</h3>
+
                 <div className="admin-list">
-                    {bookings.map((b) => (
-                        <div key={b.id} className="admin-card">
-                            <p><strong>Service:</strong> {b.service?.name}</p>
-                            <p><strong>Customer:</strong> {b.customer?.name} ({b.customer?.email})</p>
-                            <p><strong>Provider:</strong> {b.provider?.name || "Unassigned"}</p>
-                            <p><strong>Time:</strong> {new Date(b.scheduledAt).toLocaleString()}</p>
-                            <p><strong>Status:</strong> {b.status}</p>
-                        </div>
-                    ))}
+                    {bookings.length === 0 ? (
+                        <p>No bookings found.</p>
+                    ) : (
+                        bookings.map((booking) => (
+                            <div
+                                key={booking.id}
+                                className="admin-card"
+                            >
+                                <p>
+                                    <strong>Service:</strong>{" "}
+                                    {booking.service?.name}
+                                </p>
+
+                                <p>
+                                    <strong>Customer:</strong>{" "}
+                                    {booking.customer?.name}{" "}
+                                    ({booking.customer?.email})
+                                </p>
+
+                                <p>
+                                    <strong>Provider:</strong>{" "}
+                                    {booking.provider?.name ||
+                                        "Unassigned"}
+                                </p>
+
+                                <p>
+                                    <strong>Time:</strong>{" "}
+                                    {new Date(
+                                        booking.scheduledAt
+                                    ).toLocaleString()}
+                                </p>
+
+                                <p>
+                                    <strong>Status:</strong>{" "}
+                                    {booking.status}
+                                </p>
+
+                                <p>
+                                    <strong>Payment:</strong>{" "}
+                                    {booking.paymentStatus ||
+                                        "pending"}
+                                </p>
+                            </div>
+                        ))
+                    )}
                 </div>
             </section>
 
+            {/* USER MANAGEMENT */}
+
             <section>
                 <h3>User Management</h3>
+
                 <div className="admin-list">
-                    {users.map((u) => (
-                        <div key={u._id} className="admin-card">
-                            <p><strong>Name:</strong> {u.name}</p>
-                            <p><strong>Email:</strong> {u.email}</p>
-                            <p>
-                                <strong>Role: </strong>
-                                <select 
-                                    value={u.role} 
-                                    onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                    {users.length === 0 ? (
+                        <p>No users found.</p>
+                    ) : (
+                        users.map((u) => (
+                            <div
+                                key={u._id}
+                                className="admin-card"
+                            >
+                                <p>
+                                    <strong>Name:</strong>{" "}
+                                    {u.name}
+                                </p>
+
+                                <p>
+                                    <strong>Email:</strong>{" "}
+                                    {u.email}
+                                </p>
+
+                                <p>
+                                    <strong>Role:</strong>{" "}
+                                    <select
+                                        value={u.role}
+                                        onChange={(event) =>
+                                            handleRoleChange(
+                                                u._id,
+                                                event.target.value
+                                            )
+                                        }
+                                    >
+                                        <option value="customer">
+                                            Customer
+                                        </option>
+
+                                        <option value="provider">
+                                            Provider
+                                        </option>
+
+                                        <option value="admin">
+                                            Admin
+                                        </option>
+                                    </select>
+                                </p>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </section>
+
+            {/* PROVIDER MANAGEMENT */}
+
+            <section>
+                <h3>Provider Management</h3>
+
+                {providerMessage && (
+                    <p>{providerMessage}</p>
+                )}
+
+                <div className="admin-list">
+                    {providers.length === 0 ? (
+                        <p>No providers found.</p>
+                    ) : (
+                        providers.map((provider) => (
+                            <div
+                                key={provider._id}
+                                className="admin-card"
+                            >
+                                <h4>
+                                    {provider.user?.name ||
+                                        "Unnamed Provider"}
+                                </h4>
+
+                                <p>
+                                    <strong>Email:</strong>{" "}
+                                    {provider.user?.email ||
+                                        "Not available"}
+                                </p>
+
+                                <p>
+                                    <strong>Bio:</strong>{" "}
+                                    {provider.bio ||
+                                        "No bio provided."}
+                                </p>
+
+                                <p>
+                                    <strong>Average Rating:</strong>{" "}
+                                    {provider.averageRating ?? 0}
+                                </p>
+
+                                <p>
+                                    <strong>Total Reviews:</strong>{" "}
+                                    {provider.totalReviews ?? 0}
+                                </p>
+
+                                <p>
+                                    <strong>Completed Jobs:</strong>{" "}
+                                    {provider.completedJobs ?? 0}
+                                </p>
+
+                                <div>
+                                    <h4>
+                                        Services Offered
+                                    </h4>
+
+                                    {services.length === 0 ? (
+                                        <p>
+                                            No services available.
+                                        </p>
+                                    ) : (
+                                        services.map((service) => {
+                                            const serviceId =
+                                                service._id ||
+                                                service.id;
+
+                                            const isOffered =
+                                                (
+                                                    provider.offeredServices ||
+                                                    []
+                                                ).some(
+                                                    (offeredService) =>
+                                                        offeredService._id ===
+                                                        serviceId
+                                                );
+
+                                            return (
+                                                <label
+                                                    key={serviceId}
+                                                    style={{
+                                                        display:
+                                                            "block"
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={
+                                                            isOffered
+                                                        }
+                                                        onChange={() =>
+                                                            handleProviderServiceChange(
+                                                                provider._id,
+                                                                serviceId
+                                                            )
+                                                        }
+                                                    />
+
+                                                    {" "}
+                                                    {service.name}
+                                                </label>
+                                            );
+                                        })
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleSaveProviderServices(
+                                            provider._id
+                                        )
+                                    }
+                                    disabled={
+                                        savingProvider ===
+                                        provider._id
+                                    }
                                 >
-                                    <option value="customer">Customer</option>
-                                    <option value="provider">Provider</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </p>
-                        </div>
-                    ))}
+                                    {savingProvider ===
+                                        provider._id
+                                        ? "Saving..."
+                                        : "Save Services"}
+                                </button>
+                            </div>
+                        ))
+                    )}
                 </div>
             </section>
         </div>

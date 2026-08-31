@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import "./MyBookings.css";
 
+const CUSTOMER_CANCELLATION_WINDOW_MS = 15 * 60 * 1000;
+
 function MyBookings() {
     const { user } = useAuth();
 
@@ -9,8 +11,18 @@ function MyBookings() {
     const [reviews, setReviews] = useState({});
     const [reviewForms, setReviewForms] = useState({});
     const [paymentLoading, setPaymentLoading] = useState({});
+    const [cancellationLoading, setCancellationLoading] = useState({});
+    const [currentTime, setCurrentTime] = useState(Date.now());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         async function fetchBookings() {
@@ -150,7 +162,9 @@ function MyBookings() {
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.message || "Payment could not be processed.");
+                setError(
+                    data.message || "Payment could not be processed."
+                );
                 return;
             }
 
@@ -175,6 +189,91 @@ function MyBookings() {
         }
     }
 
+    async function cancelBooking(bookingId) {
+        const confirmed = window.confirm(
+            "Are you sure you want to cancel this booking?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setCancellationLoading((current) => ({
+            ...current,
+            [bookingId]: true,
+        }));
+
+        setError("");
+
+        try {
+            const response = await fetch(
+                `/api/bookings/${bookingId}/cancel`,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(
+                    data.message || "Unable to cancel booking."
+                );
+                return;
+            }
+
+            setBookings((current) =>
+                current.map((booking) =>
+                    booking.id === bookingId
+                        ? {
+                            ...booking,
+                            status: "cancelled",
+                        }
+                        : booking
+                )
+            );
+        } catch (err) {
+            setError("Unable to connect to the server.");
+        } finally {
+            setCancellationLoading((current) => ({
+                ...current,
+                [bookingId]: false,
+            }));
+        }
+    }
+
+    function getCancellationTimeRemaining(booking) {
+        if (
+            !booking.createdAt ||
+            !["pending", "confirmed"].includes(booking.status)
+        ) {
+            return 0;
+        }
+
+        const createdAt = new Date(booking.createdAt).getTime();
+
+        if (Number.isNaN(createdAt)) {
+            return 0;
+        }
+
+        const expiresAt =
+            createdAt + CUSTOMER_CANCELLATION_WINDOW_MS;
+
+        return Math.max(0, expiresAt - currentTime);
+    }
+
+    function formatRemainingTime(milliseconds) {
+        const totalSeconds = Math.ceil(milliseconds / 1000);
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        return `${minutes}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
+    }
+
     if (!user) {
         return (
             <div className="my-bookings">
@@ -191,7 +290,7 @@ function MyBookings() {
         );
     }
 
-    if (error) {
+    if (error && bookings.length === 0) {
         return (
             <div className="my-bookings">
                 <p className="error">{error}</p>
@@ -203,6 +302,10 @@ function MyBookings() {
         <div className="my-bookings">
             <h2>My Bookings</h2>
 
+            {error && (
+                <p className="error">{error}</p>
+            )}
+
             {bookings.length === 0 ? (
                 <p>You have no bookings yet.</p>
             ) : (
@@ -212,6 +315,15 @@ function MyBookings() {
                         const form = reviewForms[booking.id] || {};
                         const paymentStatus =
                             booking.paymentStatus || "pending";
+
+                        const cancellationTimeRemaining =
+                            getCancellationTimeRemaining(booking);
+
+                        const canCancel =
+                            cancellationTimeRemaining > 0 &&
+                            ["pending", "confirmed"].includes(
+                                booking.status
+                            );
 
                         return (
                             <div
@@ -252,6 +364,41 @@ function MyBookings() {
                                         {booking.status}
                                     </span>
                                 </p>
+
+                                {/* CANCELLATION */}
+                                {canCancel && (
+                                    <div className="cancellation-section">
+                                        <p>
+                                            You can cancel this booking for{" "}
+                                            <strong>
+                                                {formatRemainingTime(
+                                                    cancellationTimeRemaining
+                                                )}
+                                            </strong>
+                                        </p>
+
+                                        <button
+                                            type="button"
+                                            className="cancel-booking-button"
+                                            disabled={
+                                                cancellationLoading[
+                                                booking.id
+                                                ]
+                                            }
+                                            onClick={() =>
+                                                cancelBooking(
+                                                    booking.id
+                                                )
+                                            }
+                                        >
+                                            {cancellationLoading[
+                                                booking.id
+                                            ]
+                                                ? "Cancelling..."
+                                                : "Cancel Booking"}
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* PAYMENT */}
                                 {booking.status !== "cancelled" && (
@@ -387,8 +534,7 @@ function MyBookings() {
                                                             updateReviewForm(
                                                                 booking.id,
                                                                 "comment",
-                                                                event.target
-                                                                    .value
+                                                                event.target.value
                                                             )
                                                         }
                                                         placeholder="Tell us about your experience."
