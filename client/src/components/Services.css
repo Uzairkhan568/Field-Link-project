@@ -1,17 +1,21 @@
-section {
-    padding: 60px 40px;
+#services {
+    padding: clamp(48px, 7vw, 80px) clamp(20px, 5vw, 56px);
     text-align: center;
+    background: var(--clr-bg);
 }
 
-section h2 {
-    font-size: 32px;
-    margin-bottom: 30px;
+#services h2 {
+    margin: 0 0 30px;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    letter-spacing: -0.02em;
 }
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .selected-service {
@@ -21,9 +25,10 @@ section h2 {
 }
 
 .no-services {
+    grid-column: 1 / -1;
     margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
+    color: var(--clr-text-muted);
+    font-size: 1rem;
 }
 
 .booking-message {
@@ -41,27 +46,47 @@ section h2 {
 }
 
 .service-filters label {
-    font-weight: bold;
+    color: var(--clr-text-muted);
+    font-weight: 600;
 }
 
 .service-filters select {
     padding: 10px 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
+    color: var(--clr-text);
+    border: 1px solid var(--clr-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--clr-surface);
     font-size: 15px;
     cursor: pointer;
 }
 
 .service-filters button {
     padding: 10px 14px;
-    border: none;
-    border-radius: 6px;
+    color: var(--clr-text);
+    background: var(--clr-surface-elevated);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
+    transition: background-color var(--ease), border-color var(--ease);
+}
+
+.service-filters button:hover {
+    background: var(--clr-surface-hover);
+    border-color: var(--clr-border-strong);
+}
+
+@media (max-width: 900px) {
+    .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 600px) {
     .service-filters {
         flex-direction: column;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -8,6 +8,7 @@ function Navbar() {
     const navigate = useNavigate();
 
     const [unreadCount, setUnreadCount] = useState(0);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     async function fetchUnreadCount() {
         if (!user) {
@@ -70,6 +71,7 @@ function Navbar() {
     }, [user]);
 
     async function handleLogout() {
+        setMenuOpen(false);
         await logout();
         navigate("/");
     }
@@ -77,10 +79,31 @@ function Navbar() {
     return (
         <nav>
             <h2>
-                <Link to="/">WEFiX</Link>
+                <Link to="/" className="nav-logo">WEFiX</Link>
             </h2>
 
-            <div className="nav-links">
+            <button
+                type="button"
+                className="nav-menu-toggle"
+                onClick={() => setMenuOpen((current) => !current)}
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={menuOpen}
+                aria-controls="main-navigation"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div
+                id="main-navigation"
+                className={`nav-links ${menuOpen ? "nav-links-open" : ""}`}
+                onClick={(event) => {
+                    if (event.target.closest("a")) {
+                        setMenuOpen(false);
+                    }
+                }}
+            >
                 <Link to="/">Home</Link>
 
                 <a href="/#services">Services</a>
@@ -147,6 +170,7 @@ function Navbar() {
 
                             <button
                                 type="button"
+                                className="nav-logout-btn"
                                 onClick={handleLogout}
                             >
                                 Log out

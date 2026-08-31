@@ -1,32 +1,14 @@
-.auth-page {
-    display: grid;
-    min-height: calc(100vh - 70px);
-    place-items: center;
-    padding: 40px;
-}
-
-.auth-form {
-    display: grid;
-    width: min(100%, 420px);
-    gap: 16px;
-}
-
-.auth-form h1,
-.auth-form p {
-    margin: 0;
-}
-
-.auth-form label {
-    display: grid;
-    gap: 6px;
-    text-align: left;
-}
-
-.auth-form input,
-.auth-form button {
-    padding: 10px;
-}
-
-.auth-error {
-    color: #b42318;
-}
+/* Stage 7 — Auth */
+.auth-page{min-height:calc(100vh - var(--navbar-h));display:grid;place-items:center;padding:clamp(32px,7vw,72px) 20px;background:var(--clr-bg)}
+.auth-form{width:min(100%,440px);display:grid;gap:18px;padding:clamp(28px,5vw,40px);background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl)}
+.auth-form h1{margin:0;color:var(--clr-text);font-size:clamp(1.75rem,4vw,2.25rem);letter-spacing:-.03em}
+.auth-form p{margin:0;color:var(--clr-text-muted)}
+.auth-form label{display:grid;gap:7px;color:var(--clr-text);font-size:.9rem;font-weight:600;text-align:left}
+.auth-form input{width:100%;padding:12px 14px;border:1px solid var(--clr-border-strong);border-radius:var(--radius-md);background:var(--clr-bg);color:var(--clr-text);font:inherit;outline:none;transition:border-color var(--ease),box-shadow var(--ease),background-color var(--ease)}
+.auth-form input::placeholder{color:var(--clr-gray-500)}
+.auth-form input:focus{border-color:var(--clr-primary);box-shadow:0 0 0 3px var(--clr-primary-light)}
+.auth-form button{padding:12px 18px;border:1px solid var(--clr-primary);border-radius:var(--radius-md);background:var(--clr-primary);color:#fff;font:inherit;font-weight:700;cursor:pointer;transition:transform var(--ease),background-color var(--ease),box-shadow var(--ease)}
+.auth-form button:hover{background:var(--clr-primary-dark);box-shadow:var(--shadow-md)}
+.auth-form button:active{transform:translateY(1px)}
+.auth-error{margin:0;padding:11px 13px;background:var(--clr-danger-light);border:1px solid rgba(239,68,68,.35);border-radius:var(--radius-md);color:#fecaca!important;font-size:.875rem;font-weight:600}
+@media(max-width:600px){.auth-page{padding:28px 16px}.auth-form{padding:24px 20px}}

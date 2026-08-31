@@ -17,6 +17,14 @@ function Services({ searchTerm }) {
         async function loadServices() {
             try {
                 const data = await getServices();
+
+                console.table(
+                    data.map((service) => ({
+                        name: service.name,
+                        imageUrl: service.imageUrl,
+                    }))
+                );
+
                 setServices(data);
             } catch (error) {
                 setLoadError(error.message);
@@ -47,7 +55,9 @@ function Services({ searchTerm }) {
 
     const selectedServiceMatchesSearch =
         selectedService &&
-        selectedService.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        selectedService.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) &&
         (selectedCategory === "all" ||
             selectedService.name === selectedCategory);
 
@@ -94,7 +104,9 @@ function Services({ searchTerm }) {
 
             <div className="services-grid">
                 {loading ? (
-                    <p className="no-services">Loading services...</p>
+                    <p className="no-services">
+                        Loading services...
+                    </p>
                 ) : loadError ? (
                     <p className="no-services">{loadError}</p>
                 ) : filteredServices.length > 0 ? (

@@ -9,6 +9,7 @@ async function getServices(req, res) {
             name: service.name,
             slug: service.slug,
             description: service.description,
+            imageUrl: service.imageUrl || "",
         }))
     );
 }

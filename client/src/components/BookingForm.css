@@ -1,81 +1,215 @@
+/* Stage 7 — Booking flow */
 .booking-form {
-    margin-top: 30px;
-    padding: 30px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
+    width: min(100% - 32px, 760px);
+    margin: 30px auto 0;
+    padding: clamp(24px, 5vw, 38px);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-xl);
+    background: var(--clr-surface);
+    box-shadow: var(--shadow-lg)
 }
 
 .booking-form h2 {
-    margin-bottom: 20px;
+    margin: 0 0 24px;
+    color: var(--clr-text);
+    font-size: 1.55rem
 }
 
 .booking-form label {
     display: block;
-    width: 400px;
+    width: min(100%, 400px);
     margin: 0 auto 20px;
-    text-align: left;
+    color: var(--clr-text);
+    font-weight: 600;
+    text-align: left
 }
 
 .booking-form input {
     display: block;
     width: 100%;
-    margin-top: 6px;
-    padding: 10px;
-    box-sizing: border-box;
+    margin-top: 7px;
+    padding: 11px 13px;
+    border: 1px solid var(--clr-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--clr-bg);
+    color: var(--clr-text);
+    font: inherit;
+    outline: none;
+    transition: border-color var(--ease), box-shadow var(--ease)
+}
+
+.booking-form input:focus {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 3px var(--clr-primary-light)
 }
 
 .booking-form button {
     margin-top: 10px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
+    padding: 11px 20px;
+    border: 1px solid var(--clr-primary);
+    border-radius: var(--radius-md);
+    background: var(--clr-primary);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
     cursor: pointer;
+    transition: background-color var(--ease), box-shadow var(--ease)
+}
+
+.booking-form button:hover {
+    background: var(--clr-primary-dark);
+    box-shadow: var(--shadow-md)
 }
 
 .booking-form p {
     margin-top: 15px;
-    font-weight: bold;
+    color: var(--clr-text-muted)
 }
 
 .booking-confirmation {
-    margin-top: 25px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f8f9fa;
+    margin-top: 28px;
+    padding: 22px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-lg);
+    background: var(--clr-surface-elevated)
 }
 
 .booking-confirmation h3 {
-    margin-bottom: 15px;
+    margin: 0 0 14px;
+    color: var(--clr-text)
 }
 
 .booking-confirmation p {
     margin: 8px 0;
+    color: var(--clr-text-muted)
 }
 
 .booking-address-row {
     display: flex;
-    gap: 10px;
+    gap: 12px
 }
 
 .booking-address-row label {
     flex: 1;
+    width: auto
 }
 
 .selected-address {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 10px;
+    padding: 13px;
+    margin-bottom: 12px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
+    background: var(--clr-surface-elevated)
 }
 
 .selected-address p {
-    margin: 4px 0;
+    margin: 4px 0
 }
 
-@media (max-width: 700px) {
-    .booking-address-row {
-        flex-direction: column;
+@media(max-width:700px) {
+    .booking-form {
+        width: calc(100% - 24px);
+        padding: 22px 18px
     }
+
+    .booking-address-row {
+        flex-direction: column
+    }
+
+    .booking-address-row label {
+        width: 100%
+    }
+}
+
+/* ============================================================
+   BOOKING FORM — DARK THEME FIXES
+   ============================================================ */
+
+/* Make native date/time controls visible on dark backgrounds */
+.booking-form input[type="date"],
+.booking-form input[type="time"] {
+    color-scheme: dark;
+}
+
+/* Ensure the date/time icons remain visible */
+.booking-form input[type="date"]::-webkit-calendar-picker-indicator,
+.booking-form input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    cursor: pointer;
+    filter: invert(1);
+}
+
+/* Prevent address selector from overflowing */
+.booking-form select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Address label + select should stack cleanly */
+.booking-form label {
+    display: block;
+    width: 100%;
+}
+
+/* If the address select is inside a row/container */
+.booking-form .address-field,
+.booking-form .service-address {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Address preview box */
+.booking-form .address-preview {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+}
+
+/* Better mobile behaviour */
+@media (max-width: 600px) {
+    .booking-form {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .booking-form input[type="date"],
+    .booking-form input[type="time"],
+    .booking-form select {
+        width: 100%;
+    }
+}
+
+/* Service address field */
+.booking-form .service-address {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.booking-form .service-address>span {
+    font-weight: 600;
+}
+
+.booking-form .service-address select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Make native date/time picker icons visible in dark theme */
+.booking-form input[type="date"],
+.booking-form input[type="time"] {
+    color-scheme: dark;
+}
+
+.booking-form input[type="date"]::-webkit-calendar-picker-indicator,
+.booking-form input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    cursor: pointer;
+    filter: invert(1);
 }

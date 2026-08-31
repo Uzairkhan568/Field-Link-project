@@ -1,23 +1,26 @@
-section {
-    text-align: center;
-    padding: 80px 20px;
-    background-color: #f5f7fa;
-}
+ .hero-section {
+     text-align: center;
+     padding: clamp(72px, 10vw, 120px) 20px 92px;
+     background:
+         radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.20), transparent 42%),
+         linear-gradient(180deg, #101a2f 0%, #0b1120 100%);
+     border-bottom: 1px solid var(--clr-border);
+ }
 
-section h1 {
-    font-size: 48px;
-    margin-bottom: 20px;
-}
+ .hero-section h1 {
+     max-width: 900px;
+     margin: 0 auto 18px;
+     font-size: clamp(2.25rem, 5vw, 4rem);
+     letter-spacing: -0.035em;
+ }
 
-section p {
-    font-size: 20px;
-    margin-bottom: 30px;
-}
+ .hero-section p {
+     max-width: 620px;
+     margin: 0 auto 30px;
+     color: var(--clr-text-muted);
+     font-size: clamp(1rem, 2vw, 1.25rem);
+ }
 
-section button {
-    padding: 12px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-}
+ .hero-section button {
+     cursor: pointer;
+ }

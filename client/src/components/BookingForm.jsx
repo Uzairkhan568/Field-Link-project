@@ -304,8 +304,9 @@ function BookingForm({ service, onDone }) {
                 />
             </label>
 
-            <label>
-                Service Address
+            <label className="service-address">
+                <span>Service Address</span>
+
                 {loadingAddresses ? (
                     <p>Loading saved addresses...</p>
                 ) : addresses.length > 0 ? (

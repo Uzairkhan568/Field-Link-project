@@ -1,29 +1,15 @@
 .service-card {
-    padding: 30px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    transition: transform 0.2s ease;
-}
-
-.service-card h3 {
-    margin-bottom: 10px;
-}
-
-.service-card p {
-    margin: 0;
+    background: #111a2d;
+    border: 1px solid #2a3a55;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 220ms ease, box-shadow 220ms ease;
 }
 
 .service-card:hover {
-    transform: translateY(-5px);
-}
-
-.service-card button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .service-card-image {
@@ -31,6 +17,43 @@
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 20px;
+    background: var(--clr-gray-100);
+}
+
+.service-card h3 {
+    margin: 20px 20px 8px;
+    color: #f1f5f9;
+}
+
+.service-card p {
+    margin: 0 20px 20px;
+    color: #9fb3cf;
+}
+
+.service-card button {
+    display: block;
+    margin: 0 auto 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--clr-primary);
+    color: var(--clr-white);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.service-card button:hover {
+    background: var(--clr-primary-dark);
+}
+
+.service-card button:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+    .service-card-image {
+        height: 160px;
+    }
 }

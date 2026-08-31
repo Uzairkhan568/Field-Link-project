@@ -184,7 +184,9 @@ function ProviderDashboard() {
 
                             <p>
                                 <strong>Status:</strong>{" "}
-                                {job.status}
+                                <span className={`status-badge badge badge-${job.status}`}>
+                                    {job.status}
+                                </span>
                             </p>
 
                             {/* CONFIRMED */}

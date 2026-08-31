@@ -110,6 +110,26 @@ function Notifications() {
         (notification) => !notification.read
     ).length;
 
+    function formatNotificationType(type) {
+        const labels = {
+            booking_created: "Booking created",
+            booking_confirmed: "Booking confirmed",
+            booking_cancelled: "Booking cancelled",
+            booking_completed: "Booking completed",
+            payment_success: "Payment successful",
+            payment_failed: "Payment failed",
+            review_received: "Review received",
+        };
+
+        if (labels[type]) {
+            return labels[type];
+        }
+
+        return String(type || "Notification")
+            .replace(/[_-]+/g, " ")
+            .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
     if (loading) {
         return (
             <div className="notifications-page">
@@ -160,7 +180,7 @@ function Notifications() {
                                 </p>
 
                                 <p className="notification-type">
-                                    Type: {notification.type}
+                                    {formatNotificationType(notification.type)}
                                 </p>
 
                                 <p className="notification-date">

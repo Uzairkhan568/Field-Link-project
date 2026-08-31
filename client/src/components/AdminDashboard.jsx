@@ -14,7 +14,8 @@ function AdminDashboard() {
     const [error, setError] = useState("");
 
     const [savingProvider, setSavingProvider] = useState(null);
-    const [providerMessage, setProviderMessage] = useState("");
+    const [adminMessage, setAdminMessage] = useState("");
+    const [adminMessageType, setAdminMessageType] = useState("success");
 
     useEffect(() => {
         async function fetchData() {
@@ -71,6 +72,8 @@ function AdminDashboard() {
     }, [user]);
 
     const handleRoleChange = async (userId, newRole) => {
+        setAdminMessage("");
+
         try {
             const res = await fetch(`/api/users/${userId}/role`, {
                 method: "PATCH",
@@ -86,7 +89,8 @@ function AdminDashboard() {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.message || "Failed to update role.");
+                setAdminMessageType("error");
+                setAdminMessage(data.message || "Failed to update role.");
                 return;
             }
 
@@ -98,9 +102,11 @@ function AdminDashboard() {
                 )
             );
 
-            alert("Role updated successfully.");
+            setAdminMessageType("success");
+            setAdminMessage("Role updated successfully.");
         } catch {
-            alert("Error updating role.");
+            setAdminMessageType("error");
+            setAdminMessage("Error updating role.");
         }
     };
 
@@ -156,7 +162,6 @@ function AdminDashboard() {
 
     const handleSaveProviderServices = async (providerId) => {
         setSavingProvider(providerId);
-        setProviderMessage("");
 
         try {
             const provider = providers.find(
@@ -202,11 +207,11 @@ function AdminDashboard() {
                 )
             );
 
-            setProviderMessage(
-                "Provider services updated successfully."
-            );
+            setAdminMessageType("success");
+            setAdminMessage("Provider services updated successfully.");
         } catch (err) {
-            alert(err.message);
+            setAdminMessageType("error");
+            setAdminMessage(err.message);
         } finally {
             setSavingProvider(null);
         }
@@ -240,56 +245,204 @@ function AdminDashboard() {
         <div className="admin-dashboard">
             <h2>Admin Dashboard</h2>
 
+            {adminMessage && (
+                <p className={`admin-feedback ${adminMessageType}`}>
+                    {adminMessage}
+                </p>
+            )}
+
             {/* BOOKINGS */}
 
-            <section>
-                <h3>All Bookings</h3>
+            <section className="admin-bookings-section">
+                <h3>Pending Bookings</h3>
 
                 <div className="admin-list">
-                    {bookings.length === 0 ? (
-                        <p>No bookings found.</p>
+                    {bookings.filter((b) => b.status === "pending").length > 0 ? (
+                        bookings
+                            .filter((b) => b.status === "pending")
+                            .map((b) => (
+                                <div key={b.id} className="admin-card">
+                                    <p>
+                                        <strong>Service:</strong>{" "}
+                                        {b.service?.name}
+                                    </p>
+
+                                    <p>
+                                        <strong>Customer:</strong>{" "}
+                                        {b.customer?.name} ({b.customer?.email})
+                                    </p>
+
+                                    <p>
+                                        <strong>Provider:</strong>{" "}
+                                        {b.provider?.name || "Unassigned"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Time:</strong>{" "}
+                                        {new Date(b.scheduledAt).toLocaleString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>Status:</strong>{" "}
+                                        <span className="badge badge-pending">
+                                            Pending
+                                        </span>
+                                    </p>
+
+                                    <p>
+                                        <strong>Payment:</strong>{" "}
+                                        <span
+                                            className={`badge ${b.paymentStatus === "paid"
+                                                    ? "badge-paid"
+                                                    : b.paymentStatus === "failed"
+                                                        ? "badge-failed"
+                                                        : "badge-pending"
+                                                }`}
+                                        >
+                                            {b.paymentStatus || "Pending"}
+                                        </span>
+                                    </p>
+                                </div>
+                            ))
                     ) : (
-                        bookings.map((booking) => (
-                            <div
-                                key={booking.id}
-                                className="admin-card"
-                            >
-                                <p>
-                                    <strong>Service:</strong>{" "}
-                                    {booking.service?.name}
-                                </p>
+                        <div className="empty-state">
+                            <p className="empty-state-title">
+                                No pending bookings
+                            </p>
+                            <p className="empty-state-body">
+                                There are currently no bookings waiting for action.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </section>
 
-                                <p>
-                                    <strong>Customer:</strong>{" "}
-                                    {booking.customer?.name}{" "}
-                                    ({booking.customer?.email})
-                                </p>
 
-                                <p>
-                                    <strong>Provider:</strong>{" "}
-                                    {booking.provider?.name ||
-                                        "Unassigned"}
-                                </p>
+            <section className="admin-bookings-section">
+                <h3>Completed Bookings</h3>
 
-                                <p>
-                                    <strong>Time:</strong>{" "}
-                                    {new Date(
-                                        booking.scheduledAt
-                                    ).toLocaleString()}
-                                </p>
+                <div className="admin-list">
+                    {bookings.filter((b) => b.status === "completed").length > 0 ? (
+                        bookings
+                            .filter((b) => b.status === "completed")
+                            .map((b) => (
+                                <div key={b.id} className="admin-card">
+                                    <p>
+                                        <strong>Service:</strong>{" "}
+                                        {b.service?.name}
+                                    </p>
 
-                                <p>
-                                    <strong>Status:</strong>{" "}
-                                    {booking.status}
-                                </p>
+                                    <p>
+                                        <strong>Customer:</strong>{" "}
+                                        {b.customer?.name} ({b.customer?.email})
+                                    </p>
 
-                                <p>
-                                    <strong>Payment:</strong>{" "}
-                                    {booking.paymentStatus ||
-                                        "pending"}
-                                </p>
-                            </div>
-                        ))
+                                    <p>
+                                        <strong>Provider:</strong>{" "}
+                                        {b.provider?.name || "Unassigned"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Time:</strong>{" "}
+                                        {new Date(b.scheduledAt).toLocaleString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>Status:</strong>{" "}
+                                        <span className="badge badge-completed">
+                                            Completed
+                                        </span>
+                                    </p>
+
+                                    <p>
+                                        <strong>Payment:</strong>{" "}
+                                        <span
+                                            className={`badge ${b.paymentStatus === "paid"
+                                                    ? "badge-paid"
+                                                    : b.paymentStatus === "failed"
+                                                        ? "badge-failed"
+                                                        : "badge-pending"
+                                                }`}
+                                        >
+                                            {b.paymentStatus || "Pending"}
+                                        </span>
+                                    </p>
+                                </div>
+                            ))
+                    ) : (
+                        <div className="empty-state">
+                            <p className="empty-state-title">
+                                No completed bookings
+                            </p>
+                            <p className="empty-state-body">
+                                Completed bookings will appear here.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+
+            <section className="admin-bookings-section">
+                <h3>Cancelled Bookings</h3>
+
+                <div className="admin-list">
+                    {bookings.filter((b) => b.status === "cancelled").length > 0 ? (
+                        bookings
+                            .filter((b) => b.status === "cancelled")
+                            .map((b) => (
+                                <div key={b.id} className="admin-card">
+                                    <p>
+                                        <strong>Service:</strong>{" "}
+                                        {b.service?.name}
+                                    </p>
+
+                                    <p>
+                                        <strong>Customer:</strong>{" "}
+                                        {b.customer?.name} ({b.customer?.email})
+                                    </p>
+
+                                    <p>
+                                        <strong>Provider:</strong>{" "}
+                                        {b.provider?.name || "Unassigned"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Time:</strong>{" "}
+                                        {new Date(b.scheduledAt).toLocaleString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>Status:</strong>{" "}
+                                        <span className="badge badge-cancelled">
+                                            Cancelled
+                                        </span>
+                                    </p>
+
+                                    <p>
+                                        <strong>Payment:</strong>{" "}
+                                        <span
+                                            className={`badge ${b.paymentStatus === "paid"
+                                                    ? "badge-paid"
+                                                    : b.paymentStatus === "failed"
+                                                        ? "badge-failed"
+                                                        : "badge-pending"
+                                                }`}
+                                        >
+                                            {b.paymentStatus || "Pending"}
+                                        </span>
+                                    </p>
+                                </div>
+                            ))
+                    ) : (
+                        <div className="empty-state">
+                            <p className="empty-state-title">
+                                No cancelled bookings
+                            </p>
+                            <p className="empty-state-body">
+                                Cancelled bookings will appear here.
+                            </p>
+                        </div>
                     )}
                 </div>
             </section>
@@ -352,10 +505,6 @@ function AdminDashboard() {
 
             <section>
                 <h3>Provider Management</h3>
-
-                {providerMessage && (
-                    <p>{providerMessage}</p>
-                )}
 
                 <div className="admin-list">
                     {providers.length === 0 ? (
