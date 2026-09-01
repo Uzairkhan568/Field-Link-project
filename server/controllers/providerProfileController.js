@@ -1,5 +1,6 @@
 const ProviderProfile = require("../models/ProviderProfile");
 const Service = require("../models/Service");
+const Booking = require("../models/Booking");
 
 async function getMyProviderProfile(req, res) {
     const profile = await ProviderProfile.findOne({
@@ -19,7 +20,15 @@ async function getMyProviderProfile(req, res) {
         throw err;
     }
 
-    res.status(200).json(profile);
+    const profileData = profile.toObject();
+
+    // Derive completed jobs from bookings so this value cannot become stale.
+    profileData.completedJobs = await Booking.countDocuments({
+        provider: req.user.id,
+        status: "completed"
+    });
+
+    res.status(200).json(profileData);
 }
 
 async function updateMyProviderProfile(req, res) {
@@ -137,7 +146,20 @@ async function getProviderProfilesForAdmin(req, res) {
             "name slug description"
         );
 
-    res.status(200).json(profiles);
+    const profilesWithCompletedJobs = await Promise.all(
+        profiles.map(async (profile) => {
+            const profileData = profile.toObject();
+
+            profileData.completedJobs = await Booking.countDocuments({
+                provider: profile.user._id,
+                status: "completed"
+            });
+
+            return profileData;
+        })
+    );
+
+    res.status(200).json(profilesWithCompletedJobs);
 }
 
 
@@ -213,7 +235,20 @@ async function getProviderProfiles(req, res) {
             "name slug description"
         );
 
-    res.status(200).json(profiles);
+    const profilesWithCompletedJobs = await Promise.all(
+        profiles.map(async (profile) => {
+            const profileData = profile.toObject();
+
+            profileData.completedJobs = await Booking.countDocuments({
+                provider: profile.user._id,
+                status: "completed"
+            });
+
+            return profileData;
+        })
+    );
+
+    res.status(200).json(profilesWithCompletedJobs);
 }
 
 

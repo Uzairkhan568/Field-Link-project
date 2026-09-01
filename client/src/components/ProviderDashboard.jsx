@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import "./ProviderDashboard.css";
+import { formatBookedOn, groupBookingsByBookedDate } from "./bookingDisplay";
 
 function ProviderDashboard() {
     const { user } = useAuth();
@@ -153,12 +154,21 @@ function ProviderDashboard() {
                 <p>No assigned jobs.</p>
             ) : (
                 <div className="jobs-list">
-                    {myJobs.map((job) => (
+                    {groupBookingsByBookedDate(myJobs).map((group) => (
+                        <section key={group.date} className="job-date-group">
+                            <h4 className="job-date-heading">Booked {group.date}</h4>
+                            <div className="job-date-list">
+                                {group.bookings.map((job) => (
                         <div
                             key={job.id}
                             className="job-card"
                         >
                             <h4>{job.service?.name}</h4>
+
+                            <p className="job-created-at">
+                                <strong>Booked on:</strong>{" "}
+                                {formatBookedOn(job.createdAt)}
+                            </p>
 
                             <p>
                                 <strong>Customer:</strong>{" "}
@@ -217,6 +227,9 @@ function ProviderDashboard() {
                                 </p>
                             )}
                         </div>
+                                ))}
+                            </div>
+                        </section>
                     ))}
                 </div>
             )}
@@ -229,12 +242,21 @@ function ProviderDashboard() {
                 </p>
             ) : (
                 <div className="jobs-list">
-                    {availableJobs.map((job) => (
+                    {groupBookingsByBookedDate(availableJobs).map((group) => (
+                        <section key={group.date} className="job-date-group">
+                            <h4 className="job-date-heading">Booked {group.date}</h4>
+                            <div className="job-date-list">
+                                {group.bookings.map((job) => (
                         <div
                             key={job.id}
                             className="job-card available-job"
                         >
                             <h4>{job.service?.name}</h4>
+
+                            <p className="job-created-at">
+                                <strong>Booked on:</strong>{" "}
+                                {formatBookedOn(job.createdAt)}
+                            </p>
 
                             <p>
                                 <strong>Customer:</strong>{" "}
@@ -291,6 +313,9 @@ function ProviderDashboard() {
                                 </button>
                             </div>
                         </div>
+                                ))}
+                            </div>
+                        </section>
                     ))}
                 </div>
             )}

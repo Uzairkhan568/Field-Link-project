@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import "./MyBookings.css";
+import { formatBookedOn, groupBookingsByBookedDate } from "./bookingDisplay";
 
 const CUSTOMER_CANCELLATION_WINDOW_MS = 15 * 60 * 1000;
 
@@ -310,7 +311,11 @@ function MyBookings() {
                 <p>You have no bookings yet.</p>
             ) : (
                 <div className="bookings-list">
-                    {bookings.map((booking) => {
+                    {groupBookingsByBookedDate(bookings).map((group) => (
+                        <section key={group.date} className="booking-date-group">
+                            <h3 className="booking-date-heading">Booked {group.date}</h3>
+                            <div className="booking-date-list">
+                                {group.bookings.map((booking) => {
                         const reviewData = reviews[booking.id];
                         const form = reviewForms[booking.id] || {};
                         const paymentStatus =
@@ -333,6 +338,11 @@ function MyBookings() {
                                 <h3>
                                     {booking.service?.name || "Service"}
                                 </h3>
+
+                                <p className="booking-created-at">
+                                    <strong>Booked on:</strong>{" "}
+                                    {formatBookedOn(booking.createdAt)}
+                                </p>
 
                                 <p>
                                     <strong>Date:</strong>{" "}
@@ -560,7 +570,10 @@ function MyBookings() {
                                 )}
                             </div>
                         );
-                    })}
+                                })}
+                            </div>
+                        </section>
+                    ))}
                 </div>
             )}
         </div>

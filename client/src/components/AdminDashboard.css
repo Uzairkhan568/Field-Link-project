@@ -182,3 +182,7 @@
     padding-bottom: 12px;
     border-bottom: 1px solid var(--clr-gray-200);
 }
+.admin-booking-groups{display:grid;gap:18px}
+.admin-booking-date-group{display:grid;gap:12px}
+.admin-booking-date-heading{margin:0;padding:10px 14px;border:1px solid var(--clr-border);border-radius:var(--radius-md);background:var(--clr-surface-elevated);color:var(--clr-text);font-size:.9rem;font-weight:700}
+.admin-booking-date-list{margin-bottom:0}

@@ -37,6 +37,31 @@ async function createBooking({
 
     await booking.save();
 
+    // Notify every active provider who offers this service.
+    // The provider is not assigned yet, so the notification must
+    // be sent to eligible providers rather than booking.provider.
+    const eligibleProfiles = await ProviderProfile.find({
+        offeredServices: serviceId,
+    }).populate("user", "_id role isActive");
+
+    const eligibleProviders = eligibleProfiles.filter(
+        (profile) =>
+            profile.user &&
+            profile.user.role === "provider" &&
+            profile.user.isActive
+    );
+
+    await Promise.all(
+        eligibleProviders.map((profile) =>
+            notificationService.createNotification({
+                userId: profile.user._id,
+                type: "booking_created",
+                message: `New ${service.name} booking request is available.`,
+                bookingId: booking._id,
+            })
+        )
+    );
+
     return booking;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import "./AdminDashboard.css";
+import { formatBookedOn, groupBookingsByBookedDate } from "./bookingDisplay";
 
 function AdminDashboard() {
     const { user } = useAuth();
@@ -217,6 +218,84 @@ function AdminDashboard() {
         }
     };
 
+    function renderBookingCard(b, statusLabel) {
+        return (
+            <div key={b.id} className="admin-card">
+                <p>
+                    <strong>Service:</strong>{" "}
+                    {b.service?.name}
+                </p>
+                <p>
+                    <strong>Customer:</strong>{" "}
+                    {b.customer?.name} ({b.customer?.email})
+                </p>
+                <p>
+                    <strong>Provider:</strong>{" "}
+                    {b.provider?.name || "Unassigned"}
+                </p>
+                <p>
+                    <strong>Booked on:</strong>{" "}
+                    {formatBookedOn(b.createdAt)}
+                </p>
+                <p>
+                    <strong>Appointment:</strong>{" "}
+                    {new Date(b.scheduledAt).toLocaleString()}
+                </p>
+                <p>
+                    <strong>Status:</strong>{" "}
+                    <span className={`badge badge-${b.status}`}>
+                        {statusLabel}
+                    </span>
+                </p>
+                <p>
+                    <strong>Payment:</strong>{" "}
+                    <span
+                        className={`badge ${b.paymentStatus === "paid"
+                            ? "badge-paid"
+                            : b.paymentStatus === "failed"
+                                ? "badge-failed"
+                                : "badge-pending"
+                        }`}
+                    >
+                        {b.paymentStatus || "Pending"}
+                    </span>
+                </p>
+            </div>
+        );
+    }
+
+    function renderBookingSection(status, title, statusLabel, emptyTitle, emptyBody) {
+        const filteredBookings = bookings.filter((booking) => booking.status === status);
+
+        return (
+            <section className="admin-bookings-section">
+                <h3>{title}</h3>
+
+                {filteredBookings.length > 0 ? (
+                    <div className="admin-booking-groups">
+                        {groupBookingsByBookedDate(filteredBookings).map((group) => (
+                            <div key={group.date} className="admin-booking-date-group">
+                                <h4 className="admin-booking-date-heading">
+                                    Booked {group.date}
+                                </h4>
+                                <div className="admin-list admin-booking-date-list">
+                                    {group.bookings.map((booking) =>
+                                        renderBookingCard(booking, statusLabel)
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-state">
+                        <p className="empty-state-title">{emptyTitle}</p>
+                        <p className="empty-state-body">{emptyBody}</p>
+                    </div>
+                )}
+            </section>
+        );
+    }
+
     if (!user || user.role !== "admin") {
         return (
             <div className="admin-dashboard">
@@ -252,200 +331,9 @@ function AdminDashboard() {
             )}
 
             {/* BOOKINGS */}
-
-            <section className="admin-bookings-section">
-                <h3>Pending Bookings</h3>
-
-                <div className="admin-list">
-                    {bookings.filter((b) => b.status === "pending").length > 0 ? (
-                        bookings
-                            .filter((b) => b.status === "pending")
-                            .map((b) => (
-                                <div key={b.id} className="admin-card">
-                                    <p>
-                                        <strong>Service:</strong>{" "}
-                                        {b.service?.name}
-                                    </p>
-
-                                    <p>
-                                        <strong>Customer:</strong>{" "}
-                                        {b.customer?.name} ({b.customer?.email})
-                                    </p>
-
-                                    <p>
-                                        <strong>Provider:</strong>{" "}
-                                        {b.provider?.name || "Unassigned"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Time:</strong>{" "}
-                                        {new Date(b.scheduledAt).toLocaleString()}
-                                    </p>
-
-                                    <p>
-                                        <strong>Status:</strong>{" "}
-                                        <span className="badge badge-pending">
-                                            Pending
-                                        </span>
-                                    </p>
-
-                                    <p>
-                                        <strong>Payment:</strong>{" "}
-                                        <span
-                                            className={`badge ${b.paymentStatus === "paid"
-                                                    ? "badge-paid"
-                                                    : b.paymentStatus === "failed"
-                                                        ? "badge-failed"
-                                                        : "badge-pending"
-                                                }`}
-                                        >
-                                            {b.paymentStatus || "Pending"}
-                                        </span>
-                                    </p>
-                                </div>
-                            ))
-                    ) : (
-                        <div className="empty-state">
-                            <p className="empty-state-title">
-                                No pending bookings
-                            </p>
-                            <p className="empty-state-body">
-                                There are currently no bookings waiting for action.
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-
-            <section className="admin-bookings-section">
-                <h3>Completed Bookings</h3>
-
-                <div className="admin-list">
-                    {bookings.filter((b) => b.status === "completed").length > 0 ? (
-                        bookings
-                            .filter((b) => b.status === "completed")
-                            .map((b) => (
-                                <div key={b.id} className="admin-card">
-                                    <p>
-                                        <strong>Service:</strong>{" "}
-                                        {b.service?.name}
-                                    </p>
-
-                                    <p>
-                                        <strong>Customer:</strong>{" "}
-                                        {b.customer?.name} ({b.customer?.email})
-                                    </p>
-
-                                    <p>
-                                        <strong>Provider:</strong>{" "}
-                                        {b.provider?.name || "Unassigned"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Time:</strong>{" "}
-                                        {new Date(b.scheduledAt).toLocaleString()}
-                                    </p>
-
-                                    <p>
-                                        <strong>Status:</strong>{" "}
-                                        <span className="badge badge-completed">
-                                            Completed
-                                        </span>
-                                    </p>
-
-                                    <p>
-                                        <strong>Payment:</strong>{" "}
-                                        <span
-                                            className={`badge ${b.paymentStatus === "paid"
-                                                    ? "badge-paid"
-                                                    : b.paymentStatus === "failed"
-                                                        ? "badge-failed"
-                                                        : "badge-pending"
-                                                }`}
-                                        >
-                                            {b.paymentStatus || "Pending"}
-                                        </span>
-                                    </p>
-                                </div>
-                            ))
-                    ) : (
-                        <div className="empty-state">
-                            <p className="empty-state-title">
-                                No completed bookings
-                            </p>
-                            <p className="empty-state-body">
-                                Completed bookings will appear here.
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-
-            <section className="admin-bookings-section">
-                <h3>Cancelled Bookings</h3>
-
-                <div className="admin-list">
-                    {bookings.filter((b) => b.status === "cancelled").length > 0 ? (
-                        bookings
-                            .filter((b) => b.status === "cancelled")
-                            .map((b) => (
-                                <div key={b.id} className="admin-card">
-                                    <p>
-                                        <strong>Service:</strong>{" "}
-                                        {b.service?.name}
-                                    </p>
-
-                                    <p>
-                                        <strong>Customer:</strong>{" "}
-                                        {b.customer?.name} ({b.customer?.email})
-                                    </p>
-
-                                    <p>
-                                        <strong>Provider:</strong>{" "}
-                                        {b.provider?.name || "Unassigned"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Time:</strong>{" "}
-                                        {new Date(b.scheduledAt).toLocaleString()}
-                                    </p>
-
-                                    <p>
-                                        <strong>Status:</strong>{" "}
-                                        <span className="badge badge-cancelled">
-                                            Cancelled
-                                        </span>
-                                    </p>
-
-                                    <p>
-                                        <strong>Payment:</strong>{" "}
-                                        <span
-                                            className={`badge ${b.paymentStatus === "paid"
-                                                    ? "badge-paid"
-                                                    : b.paymentStatus === "failed"
-                                                        ? "badge-failed"
-                                                        : "badge-pending"
-                                                }`}
-                                        >
-                                            {b.paymentStatus || "Pending"}
-                                        </span>
-                                    </p>
-                                </div>
-                            ))
-                    ) : (
-                        <div className="empty-state">
-                            <p className="empty-state-title">
-                                No cancelled bookings
-                            </p>
-                            <p className="empty-state-body">
-                                Cancelled bookings will appear here.
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </section>
+            {renderBookingSection("pending", "Pending Bookings", "Pending", "No pending bookings", "There are currently no bookings waiting for action.")}
+            {renderBookingSection("completed", "Completed Bookings", "Completed", "No completed bookings", "Completed bookings will appear here.")}
+            {renderBookingSection("cancelled", "Cancelled Bookings", "Cancelled", "No cancelled bookings", "Cancelled bookings will appear here.")}
 
             {/* USER MANAGEMENT */}
 
