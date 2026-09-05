@@ -222,6 +222,10 @@ function AdminDashboard() {
         return (
             <div key={b.id} className="admin-card">
                 <p>
+                    <strong>Booking ID:</strong>{" "}
+                    {b.bookingReference || "Unavailable"}
+                </p>
+                <p>
                     <strong>Service:</strong>{" "}
                     {b.service?.name}
                 </p>

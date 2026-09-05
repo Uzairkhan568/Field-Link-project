@@ -66,6 +66,7 @@ async function createBooking(req, res) {
 
         booking: {
             id: booking._id.toString(),
+            bookingReference: booking.bookingReference,
             serviceId: booking.service.toString(),
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
@@ -93,6 +94,7 @@ async function getBookings(req, res) {
     res.status(200).json(
         bookings.map((booking) => ({
             id: booking._id.toString(),
+            bookingReference: booking.bookingReference,
             service: booking.service,
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,
@@ -115,6 +117,7 @@ async function getAvailableBookings(req, res) {
     res.status(200).json(
         bookings.map((booking) => ({
             id: booking._id.toString(),
+            bookingReference: booking.bookingReference,
             service: booking.service,
             scheduledAt: booking.scheduledAt,
             timezone: booking.timezone,

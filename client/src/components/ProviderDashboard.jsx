@@ -165,6 +165,11 @@ function ProviderDashboard() {
                         >
                             <h4>{job.service?.name}</h4>
 
+                            <p className="booking-reference">
+                                <strong>Booking ID:</strong>{" "}
+                                {job.bookingReference || "Unavailable"}
+                            </p>
+
                             <p className="job-created-at">
                                 <strong>Booked on:</strong>{" "}
                                 {formatBookedOn(job.createdAt)}
@@ -252,6 +257,11 @@ function ProviderDashboard() {
                             className="job-card available-job"
                         >
                             <h4>{job.service?.name}</h4>
+
+                            <p className="booking-reference">
+                                <strong>Booking ID:</strong>{" "}
+                                {job.bookingReference || "Unavailable"}
+                            </p>
 
                             <p className="job-created-at">
                                 <strong>Booked on:</strong>{" "}

@@ -146,8 +146,19 @@ async function getProviderProfilesForAdmin(req, res) {
             "name slug description"
         );
 
+    // A ProviderProfile can remain in the database after an admin changes
+    // the user's role. Only actual provider accounts belong in provider
+    // management. Keeping the profile preserves its data if the account is
+    // later changed back to provider.
+    const activeProviderProfiles = profiles.filter(
+        (profile) =>
+            profile.user &&
+            profile.user.role === "provider" &&
+            profile.user.isActive
+    );
+
     const profilesWithCompletedJobs = await Promise.all(
-        profiles.map(async (profile) => {
+        activeProviderProfiles.map(async (profile) => {
             const profileData = profile.toObject();
 
             profileData.completedJobs = await Booking.countDocuments({
@@ -181,9 +192,9 @@ async function updateProviderServicesByAdmin(req, res) {
 
     const profile = await ProviderProfile.findById(
         providerId
-    );
+    ).populate("user", "role isActive");
 
-    if (!profile) {
+    if (!profile || !profile.user || profile.user.role !== "provider" || !profile.user.isActive) {
         const err = new Error(
             "Provider profile not found."
         );
@@ -229,14 +240,22 @@ async function updateProviderServicesByAdmin(req, res) {
 
 async function getProviderProfiles(req, res) {
     const profiles = await ProviderProfile.find()
-        .populate("user", "name")
+        .populate("user", "name role isActive")
         .populate(
             "offeredServices",
             "name slug description"
         );
 
+    // Never expose profiles whose user is no longer a provider.
+    const activeProviderProfiles = profiles.filter(
+        (profile) =>
+            profile.user &&
+            profile.user.role === "provider" &&
+            profile.user.isActive
+    );
+
     const profilesWithCompletedJobs = await Promise.all(
-        profiles.map(async (profile) => {
+        activeProviderProfiles.map(async (profile) => {
             const profileData = profile.toObject();
 
             profileData.completedJobs = await Booking.countDocuments({

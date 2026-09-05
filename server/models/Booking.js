@@ -1,8 +1,18 @@
 const mongoose = require("mongoose");
+const { generateBookingReference } = require("../utils/bookingReference");
 
 const bookingSchema = new mongoose.Schema(
     {
-        customer: {
+        bookingReference: {
+        type: String,
+        required: true,
+        unique: true,
+        immutable: true,
+        index: true,
+        default: () => generateBookingReference(),
+    },
+
+    customer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,

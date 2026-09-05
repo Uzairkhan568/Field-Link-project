@@ -339,6 +339,11 @@ function MyBookings() {
                                     {booking.service?.name || "Service"}
                                 </h3>
 
+                                <p className="booking-reference">
+                                    <strong>Booking ID:</strong>{" "}
+                                    {booking.bookingReference || "Unavailable"}
+                                </p>
+
                                 <p className="booking-created-at">
                                     <strong>Booked on:</strong>{" "}
                                     {formatBookedOn(booking.createdAt)}

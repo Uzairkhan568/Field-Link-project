@@ -59,6 +59,22 @@ const apiLimiter = rateLimit({
  * Login still has protection against excessive
  * repeated attempts.
  */
+
+/*
+ * Registration-specific rate limiter
+ *
+ * Prevents excessive account creation attempts.
+ */
+const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+
+    message: {
+        message: "Too many registration attempts, please try again later.",
+    },
+});
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 20,
@@ -84,6 +100,7 @@ app.get("/api/health", (req, res) => {
  * Login gets an additional dedicated limiter.
  */
 app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/register", registerLimiter);
 
 app.use("/api/services", serviceRoutes);
 

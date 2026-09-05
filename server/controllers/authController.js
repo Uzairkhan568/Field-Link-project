@@ -5,9 +5,29 @@ const {
 } = require("../services/authService");
 const { COOKIE_NAME, createToken, cookieOptions } = require("../utils/token");
 
-function validateCredentials({ name, email, password }, requiresName) {
-    if ((requiresName && (!name || !name.trim())) || !email || !password) {
-        const error = new Error("Name, email, and password are required.");
+function validateCredentials(body, requiresName) {
+    const { name, email, password } = body && typeof body === "object" ? body : {};
+
+    if (requiresName && (typeof name !== "string" || !name.trim())) {
+        const error = new Error("Name is required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password) {
+        const error = new Error("Email and password are required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (typeof name === "string" && name.length > 100) {
+        const error = new Error("Name cannot exceed 100 characters.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (password.length > 200) {
+        const error = new Error("Password cannot exceed 200 characters.");
         error.statusCode = 400;
         throw error;
     }
